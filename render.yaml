@@ -25,7 +25,7 @@ services:
       - key: MAIL_HOST
         sync: false
       - key: MAIL_PORT
-        value: 587
+        value: 2525
       - key: MAIL_USERNAME
         sync: false
       - key: MAIL_PASSWORD
@@ -36,6 +36,12 @@ services:
         value: true
       - key: MAIL_STARTTLS
         value: true
+      - key: MAIL_CONNECTION_TIMEOUT_MS
+        value: 10000
+      - key: MAIL_READ_TIMEOUT_MS
+        value: 10000
+      - key: MAIL_WRITE_TIMEOUT_MS
+        value: 10000
       - key: STORAGE_TYPE
         value: s3
       - key: R2_ENDPOINT

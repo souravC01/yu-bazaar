@@ -61,6 +61,8 @@ The default `local` storage backend writes to `uploads/`. Set `UPLOAD_DIRECTORY`
 
 The repository includes a multi-stage `Dockerfile` and `render.yaml` Blueprint. Render builds the Java 17 image, runs the service as a non-root user, and checks `/actuator/health` before routing traffic. Secret values are entered in the Render dashboard during Blueprint creation and are never stored in the repository.
 
+Production email uses Brevo's STARTTLS relay on port `2525`, which remains available from Render's free web services. Explicit mail timeouts keep registration and password recovery responsive if the email provider is unavailable.
+
 The free Render instance may sleep after inactivity. Neon stores application data and Cloudflare R2 stores uploaded media, so restarts do not lose persistent state.
 
 ## Testing
