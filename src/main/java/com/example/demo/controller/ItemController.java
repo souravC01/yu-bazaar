@@ -6,7 +6,7 @@ import com.example.demo.model.Item;
 import com.example.demo.model.User;
 import com.example.demo.repository.ItemRepository;
 import com.example.demo.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Value;
+import com.example.demo.storage.ImageStorageService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -20,18 +20,9 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 @Controller
 public class ItemController {
@@ -57,26 +48,19 @@ public class ItemController {
             "Tait McKenzie Centre", "Tait Tennis Courts", "Vanier College", "Vari Hall", "Winters College",
             "West Office Building", "William Small Centre", "York Hall (Glendon campus)", "York Lanes"
     );
-    private static final Map<String, String> IMAGE_EXTENSIONS = Map.of(
-            "image/jpeg", ".jpg",
-            "image/png", ".png",
-            "image/gif", ".gif",
-            "image/webp", ".webp"
-    );
-
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
     private final EmailSender emailSender;
-    private final Path uploadDirectory;
+    private final ImageStorageService imageStorageService;
 
     public ItemController(ItemRepository itemRepository,
                           UserRepository userRepository,
                           EmailSender emailSender,
-                          @Value("${app.upload.directory}") String uploadDirectory) {
+                          ImageStorageService imageStorageService) {
         this.itemRepository = itemRepository;
         this.userRepository = userRepository;
         this.emailSender = emailSender;
-        this.uploadDirectory = Paths.get(uploadDirectory).toAbsolutePath().normalize();
+        this.imageStorageService = imageStorageService;
     }
 
     @GetMapping("/home")
@@ -113,9 +97,9 @@ public class ItemController {
             return homeWithError(model, "Invalid location selected.");
         }
 
-        Path storedImage = null;
+        String storedImageKey = null;
         try {
-            storedImage = storeImage(imageFile);
+            storedImageKey = imageStorageService.store(imageFile);
 
             Item item = new Item();
             item.setTitle(title.trim());
@@ -124,7 +108,7 @@ public class ItemController {
             item.setLocation(location);
             item.setDescription(description.trim());
             item.setSellerEmail(authentication.getName());
-            item.setImagePath(storedImage.getFileName().toString());
+            item.setImagePath(storedImageKey);
             itemRepository.save(item);
 
             EmailTemplate template = EmailTemplate.LISTING_CONFIRMATION;
@@ -135,7 +119,7 @@ public class ItemController {
         } catch (IllegalArgumentException exception) {
             return homeWithError(model, exception.getMessage());
         } catch (Exception exception) {
-            deleteQuietly(storedImage);
+            imageStorageService.deleteQuietly(storedImageKey);
             return homeWithError(model, "The item could not be added. Please try again.");
         }
     }
@@ -176,7 +160,7 @@ public class ItemController {
         }
 
         itemRepository.delete(item);
-        deleteQuietly(uploadDirectory.resolve(item.getImagePath()).normalize());
+        imageStorageService.deleteQuietly(item.getImagePath());
         redirectAttributes.addFlashAttribute("success", "Listing deleted.");
         return "redirect:/home";
     }
@@ -217,38 +201,4 @@ public class ItemController {
         return "home_page";
     }
 
-    private Path storeImage(MultipartFile imageFile) throws IOException {
-        if (imageFile.isEmpty()) {
-            throw new IllegalArgumentException("Select an image for the listing.");
-        }
-
-        String contentType = imageFile.getContentType() == null
-                ? ""
-                : imageFile.getContentType().toLowerCase(Locale.ROOT);
-        String extension = IMAGE_EXTENSIONS.get(contentType);
-        if (extension == null) {
-            throw new IllegalArgumentException("Upload a JPG, PNG, GIF, or WebP image.");
-        }
-
-        Files.createDirectories(uploadDirectory);
-        Path destination = uploadDirectory.resolve(UUID.randomUUID() + extension).normalize();
-        if (!destination.startsWith(uploadDirectory)) {
-            throw new IllegalArgumentException("Invalid image filename.");
-        }
-        try (InputStream inputStream = imageFile.getInputStream()) {
-            Files.copy(inputStream, destination, StandardCopyOption.REPLACE_EXISTING);
-        }
-        return destination;
-    }
-
-    private void deleteQuietly(Path path) {
-        if (path == null || !path.startsWith(uploadDirectory)) {
-            return;
-        }
-        try {
-            Files.deleteIfExists(path);
-        } catch (IOException ignored) {
-            // A stale image is preferable to failing the user's database action.
-        }
-    }
 }

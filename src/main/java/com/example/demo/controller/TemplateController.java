@@ -4,6 +4,7 @@ import com.example.demo.Email.EmailSender;
 import com.example.demo.Email.EmailTemplate;
 import com.example.demo.model.User;
 import com.example.demo.repository.UserRepository;
+import com.example.demo.service.PasswordResetService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
@@ -14,7 +15,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Locale;
-import java.util.UUID;
 import java.util.concurrent.ThreadLocalRandom;
 
 @Controller
@@ -24,15 +24,18 @@ public class TemplateController {
     private final UserRepository userRepository;
     private final EmailSender emailSender;
     private final PasswordEncoder passwordEncoder;
+    private final PasswordResetService passwordResetService;
     private final boolean showLocalCodes;
 
     public TemplateController(UserRepository userRepository,
                               EmailSender emailSender,
                               PasswordEncoder passwordEncoder,
+                              PasswordResetService passwordResetService,
                               @Value("${app.mail.show-local-codes}") boolean showLocalCodes) {
         this.userRepository = userRepository;
         this.emailSender = emailSender;
         this.passwordEncoder = passwordEncoder;
+        this.passwordResetService = passwordResetService;
         this.showLocalCodes = showLocalCodes;
     }
 
@@ -81,8 +84,6 @@ public class TemplateController {
         }
 
         String otp = generateOtp();
-        String recoveryCode = UUID.randomUUID().toString();
-
         User user = new User();
         user.setName(name.trim());
         user.setEmail(normalizedEmail);
@@ -92,17 +93,15 @@ public class TemplateController {
         user.setPassword(passwordEncoder.encode(password));
         user.setOtp(otp);
         user.setVerified(false);
-        user.setRecoveryCode(recoveryCode);
         userRepository.save(user);
 
         boolean otpSent = emailSender.sendOtpEmail(normalizedEmail, otp);
         EmailTemplate template = EmailTemplate.REGISTRATION_SUCCESS;
-        emailSender.sendEmail(normalizedEmail, template.getSubject(), template.getBody(user.getName(), recoveryCode));
+        emailSender.sendEmail(normalizedEmail, template.getSubject(), template.getBody(user.getName()));
 
         redirectAttributes.addAttribute("email", normalizedEmail);
         if (showLocalCodes) {
             redirectAttributes.addFlashAttribute("localOtp", otp);
-            redirectAttributes.addFlashAttribute("localRecoveryCode", recoveryCode);
             redirectAttributes.addFlashAttribute("success", "Registration complete. Use the local verification code below.");
         } else if (otpSent) {
             redirectAttributes.addFlashAttribute("success", "Registration complete. Check your email for the verification code.");
@@ -112,34 +111,59 @@ public class TemplateController {
         return "redirect:/verify";
     }
 
-    @GetMapping("/forgot_password")
+    @GetMapping({"/forgot-password", "/forgot_password"})
     public String forgotPassword() {
         return "forgot_password";
     }
 
-    @PostMapping("/reset_password")
-    public String resetPassword(@RequestParam String recoveryCode,
+    @PostMapping("/forgot-password")
+    public String requestPasswordReset(@RequestParam String email,
+                                       RedirectAttributes redirectAttributes) {
+        passwordResetService.requestReset(email).ifPresent(result -> {
+            if (showLocalCodes) {
+                redirectAttributes.addFlashAttribute("localPasswordResetUrl", result.resetUrl());
+            }
+        });
+
+        redirectAttributes.addFlashAttribute(
+                "success",
+                "If that email belongs to an account, a password-reset link has been prepared."
+        );
+        return "redirect:/forgot-password";
+    }
+
+    @GetMapping("/reset-password")
+    public String showResetPassword(@RequestParam(required = false) String token, Model model) {
+        if (!passwordResetService.isTokenValid(token)) {
+            model.addAttribute("error", "This password-reset link is invalid or has expired.");
+        } else {
+            model.addAttribute("token", token);
+        }
+        return "reset_password";
+    }
+
+    @PostMapping("/reset-password")
+    public String resetPassword(@RequestParam String token,
                                 @RequestParam String newPassword,
                                 @RequestParam String confirmNewPassword,
                                 Model model,
                                 RedirectAttributes redirectAttributes) {
         if (!newPassword.equals(confirmNewPassword)) {
             model.addAttribute("error", "Passwords do not match.");
-            return "forgot_password";
+            model.addAttribute("token", token);
+            return "reset_password";
         }
         if (newPassword.length() < 8) {
             model.addAttribute("error", "Password must be at least 8 characters.");
-            return "forgot_password";
+            model.addAttribute("token", token);
+            return "reset_password";
         }
 
-        User user = userRepository.findByRecoveryCode(recoveryCode).orElse(null);
-        if (user == null) {
-            model.addAttribute("error", "Invalid recovery code.");
-            return "forgot_password";
+        if (!passwordResetService.resetPassword(token, newPassword)) {
+            model.addAttribute("error", "This password-reset link is invalid or has expired.");
+            return "reset_password";
         }
 
-        user.setPassword(passwordEncoder.encode(newPassword));
-        userRepository.save(user);
         redirectAttributes.addFlashAttribute("success", "Password updated. You can now sign in.");
         return "redirect:/";
     }

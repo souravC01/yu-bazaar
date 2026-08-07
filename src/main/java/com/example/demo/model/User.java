@@ -6,6 +6,8 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 
+import java.time.Instant;
+
 @Entity
 @Table(name = "users")
 public class User {
@@ -39,8 +41,11 @@ public class User {
     @Column(name = "dob", nullable = false)
     private String dob;
 
-    @Column(name = "recovery_code", nullable = true)
-    private String recoveryCode;
+    @Column(name = "password_reset_token_hash", length = 64, unique = true)
+    private String passwordResetTokenHash;
+
+    @Column(name = "password_reset_expires_at")
+    private Instant passwordResetExpiresAt;
 
     @Column(name = "otp", nullable = true)
     private String otp;
@@ -120,12 +125,20 @@ public class User {
         this.dob = dob;
     }
 
-    public String getRecoveryCode() {
-        return recoveryCode;
+    public String getPasswordResetTokenHash() {
+        return passwordResetTokenHash;
     }
 
-    public void setRecoveryCode(String recoveryCode) {
-        this.recoveryCode = recoveryCode;
+    public void setPasswordResetTokenHash(String passwordResetTokenHash) {
+        this.passwordResetTokenHash = passwordResetTokenHash;
+    }
+
+    public Instant getPasswordResetExpiresAt() {
+        return passwordResetExpiresAt;
+    }
+
+    public void setPasswordResetExpiresAt(Instant passwordResetExpiresAt) {
+        this.passwordResetExpiresAt = passwordResetExpiresAt;
     }
 
 }

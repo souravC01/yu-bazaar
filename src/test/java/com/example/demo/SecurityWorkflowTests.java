@@ -66,6 +66,13 @@ class SecurityWorkflowTests {
     }
 
     @Test
+    void healthCheckIsPubliclyAvailable() throws Exception {
+        mockMvc.perform(get("/actuator/health"))
+                .andExpect(status().isOk())
+                .andExpect(content().json("{\"status\":\"UP\"}"));
+    }
+
+    @Test
     void registrationNormalizesEmailAndHashesPassword() throws Exception {
         mockMvc.perform(post("/register")
                         .with(csrf())
@@ -122,9 +129,10 @@ class SecurityWorkflowTests {
         assertThat(item.getSellerEmail()).isEqualTo(sellerEmail);
         assertThat(item.getImagePath()).endsWith(".png");
 
-        mockMvc.perform(get("/uploads/" + item.getImagePath())
+        mockMvc.perform(get("/media/" + item.getImagePath())
                         .with(user(sellerEmail).roles("USER")))
                 .andExpect(status().isOk())
+                .andExpect(content().contentType("image/png"))
                 .andExpect(content().bytes(new byte[]{1, 2, 3}));
     }
 
@@ -142,7 +150,7 @@ class SecurityWorkflowTests {
         item.setLocation("York Lanes");
         item.setDescription("Working condition");
         item.setSellerEmail(ownerEmail);
-        item.setImagePath("lamp.png");
+        item.setImagePath("00000000-0000-0000-0000-000000000000.png");
         item = itemRepository.save(item);
 
         mockMvc.perform(post("/delete-item")
@@ -169,7 +177,6 @@ class SecurityWorkflowTests {
         user.setAge(22);
         user.setGender("Prefer not to say");
         user.setDob("2004-01-01");
-        user.setRecoveryCode("recovery-" + email);
         user.setVerified(verified);
         return userRepository.save(user);
     }

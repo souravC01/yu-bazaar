@@ -191,7 +191,7 @@
     <p>No items found for your search.</p>
   </div>
   <div th:each="item : ${items}" class="item">
-    <img th:src="@{/uploads/{filename}(filename=${item.imagePath})}" alt="Item Image" style="width: 100px; height: 100px;">
+    <img th:src="@{/media/{filename}(filename=${item.imagePath})}" alt="Item Image" style="width: 100px; height: 100px;">
     <h3><a th:href="@{/product/{id}(id=${item.id})}" th:text="${item.title}"></a></h3>
     <p><strong>Price:</strong> $<span th:text="${item.price}"></span></p>
     <p><strong>Wear:</strong> <span th:text="${item.wear}"></span></p>

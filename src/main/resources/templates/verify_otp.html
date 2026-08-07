@@ -90,7 +90,6 @@
   <p class="success" th:if="${success}" th:text="${success}"></p>
   <p class="error" th:if="${error}" th:text="${error}"></p>
   <p class="success" th:if="${localOtp}">Local verification code: <strong th:text="${localOtp}"></strong></p>
-  <p class="success" th:if="${localRecoveryCode}">Local recovery code: <strong th:text="${localRecoveryCode}"></strong></p>
 
   <!-- OTP Verification Form -->
   <form th:action="@{/verify}" method="post">

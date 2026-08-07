@@ -7,9 +7,6 @@ public enum EmailTemplate {
             "Hi %s,\n\n" +
                     "Welcome to Yu Bazaar, the ultimate marketplace for York University students! 🎉\n\n" +
                     "Your registration was successful, and your account is now active.\n\n" +
-                    "Here are some important details:\n" +
-                    "- Recovery Code: %s\n" +
-                    "  (Keep this code safe for password recovery if needed.)\n\n" +
                     "At Yu Bazaar, you can:\n" +
                     "- List items you want to sell or trade.\n" +
                     "- Browse and buy from a variety of items posted by fellow YorkU students.\n" +
@@ -20,6 +17,14 @@ public enum EmailTemplate {
                     "Happy shopping and selling!\n" +
                     "The Yu Bazaar Team\n\n" +
                     "Support: yubazaarassistant@gmail.com"
+    ),
+    PASSWORD_RESET(
+            "Reset Your YU Bazaar Password",
+            "Hi %s,\n\n" +
+                    "Use the link below to reset your YU Bazaar password. This link expires in 30 minutes and can be used once.\n\n" +
+                    "%s\n\n" +
+                    "If you did not request this change, you can ignore this email.\n\n" +
+                    "The YU Bazaar Team"
     ),
     LISTING_CONFIRMATION("Your Listing is Live on YU Bazaar!",
             "Hi,\n\n" +
