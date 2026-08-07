@@ -146,10 +146,11 @@
 
   <p th:if="${success}" th:text="${success}" style="color: #18733d; text-align: center;"></p>
   <p th:if="${error}" th:text="${error}" style="color: #b42318; text-align: center;"></p>
+  <p th:if="${isDemo}" style="color: #604b00; text-align: center;">Seller contact and listing changes are disabled in public demo mode.</p>
 
   <!-- Contact Button -->
-  <button class="contact-button" id="contactDetailsButton" th:if="${!isOwner}">Contact Seller</button>
-  <form th:if="${isOwner}" th:action="@{/delete-item}" method="post">
+  <button class="contact-button" id="contactDetailsButton" th:if="${!isOwner and !isDemo}">Contact Seller</button>
+  <form th:if="${isOwner and !isDemo}" th:action="@{/delete-item}" method="post">
     <input type="hidden" name="id" th:value="${item.id}">
     <button type="submit" class="contact-button">Delete Listing</button>
   </form>

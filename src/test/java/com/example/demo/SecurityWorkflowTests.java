@@ -10,9 +10,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.mock.web.MockHttpSession;
 import org.springframework.util.FileSystemUtils;
 
 import java.nio.file.Path;
@@ -34,6 +36,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @AutoConfigureMockMvc
 class SecurityWorkflowTests {
     private static final Path TEST_UPLOAD_DIRECTORY = Path.of("target", "test-uploads");
+    private static final String DEMO_EMAIL = "demo@yubazaar.app";
+    private static final String DEMO_PASSWORD = "Demo@YuBazaar2026";
+    private static final String DEMO_PASSWORD_HASH = "$2a$12$3DO9/.erECuXq3IBNN33/uvvzAqP6EmgrdMYAJD/q5QdSg1fgelda";
 
     @Autowired
     private MockMvc mockMvc;
@@ -46,6 +51,9 @@ class SecurityWorkflowTests {
 
     @Autowired
     private PasswordEncoder passwordEncoder;
+
+    @Autowired
+    private JdbcTemplate jdbcTemplate;
 
     @BeforeEach
     void cleanDatabase() {
@@ -106,9 +114,30 @@ class SecurityWorkflowTests {
     }
 
     @Test
+    void publicDemoAccountCanLogInAndOnlySeesReadOnlyControls() throws Exception {
+        createDemoUser();
+
+        mockMvc.perform(formLogin("/login")
+                        .userParameter("email")
+                        .user(DEMO_EMAIL)
+                        .password(DEMO_PASSWORD))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/home"))
+                .andExpect(authenticated().withUsername(DEMO_EMAIL));
+
+        mockMvc.perform(get("/home").with(user(DEMO_EMAIL).roles("USER")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Public demo mode is read-only")))
+                .andExpect(content().string(org.hamcrest.Matchers.not(
+                        org.hamcrest.Matchers.containsString("id=\"addItemButton\"")
+                )));
+    }
+
+    @Test
     void newListingUsesAuthenticatedSellerIdentity() throws Exception {
         String sellerEmail = "seller@my.yorku.ca";
         createUser(sellerEmail, true);
+        MockHttpSession session = listingSession("new-listing-token");
         MockMultipartFile image = new MockMultipartFile(
                 "image", "listing.png", "image/png", new byte[]{1, 2, 3}
         );
@@ -120,6 +149,8 @@ class SecurityWorkflowTests {
                         .param("wear", "used")
                         .param("location", "Scott Library")
                         .param("description", "Clean copy")
+                        .param("submissionToken", "new-listing-token")
+                        .session(session)
                         .with(user(sellerEmail).roles("USER"))
                         .with(csrf()))
                 .andExpect(status().is3xxRedirection())
@@ -134,6 +165,49 @@ class SecurityWorkflowTests {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("image/png"))
                 .andExpect(content().bytes(new byte[]{1, 2, 3}));
+    }
+
+    @Test
+    void repeatedListingSubmissionTokenCreatesOnlyOneItem() throws Exception {
+        String sellerEmail = "seller@my.yorku.ca";
+        createUser(sellerEmail, true);
+        MockHttpSession session = listingSession("single-use-token");
+
+        mockMvc.perform(listingRequest(sellerEmail, session, "single-use-token", "first.png"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/home"));
+
+        mockMvc.perform(listingRequest(sellerEmail, session, "single-use-token", "second.png"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/home"));
+
+        assertThat(itemRepository.findAll()).hasSize(1);
+    }
+
+    @Test
+    void publicDemoAccountCannotCreateListings() throws Exception {
+        MockHttpSession session = listingSession("demo-token");
+
+        mockMvc.perform(listingRequest(DEMO_EMAIL, session, "demo-token", "demo.png"))
+                .andExpect(status().isForbidden());
+
+        assertThat(itemRepository.count()).isZero();
+    }
+
+    @Test
+    void publicDemoAccountCannotSendInquiriesOrDeleteListings() throws Exception {
+        mockMvc.perform(post("/send-inquiry")
+                        .param("itemId", "1")
+                        .param("message", "Is this available?")
+                        .with(user(DEMO_EMAIL).roles("USER"))
+                        .with(csrf()))
+                .andExpect(status().isForbidden());
+
+        mockMvc.perform(post("/delete-item")
+                        .param("id", "1")
+                        .with(user(DEMO_EMAIL).roles("USER"))
+                        .with(csrf()))
+                .andExpect(status().isForbidden());
     }
 
     @Test
@@ -179,5 +253,39 @@ class SecurityWorkflowTests {
         user.setDob("2004-01-01");
         user.setVerified(verified);
         return userRepository.save(user);
+    }
+
+    private void createDemoUser() {
+        jdbcTemplate.update(
+                "INSERT INTO users (name, email, password, age, gender, dob, otp, is_verified) VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+                "YU Bazaar Demo", DEMO_EMAIL, DEMO_PASSWORD_HASH, 21, "Prefer not to say", "2005-01-01", null, true
+        );
+    }
+
+    private MockHttpSession listingSession(String token) {
+        MockHttpSession session = new MockHttpSession();
+        session.setAttribute("listingSubmissionToken", token);
+        return session;
+    }
+
+    private org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder listingRequest(
+            String sellerEmail,
+            MockHttpSession session,
+            String token,
+            String imageName) {
+        MockMultipartFile image = new MockMultipartFile(
+                "image", imageName, "image/png", new byte[]{1, 2, 3}
+        );
+        return multipart("/add-item")
+                .file(image)
+                .param("title", "Course Textbook")
+                .param("price", "25.00")
+                .param("wear", "used")
+                .param("location", "Scott Library")
+                .param("description", "Clean copy")
+                .param("submissionToken", token)
+                .session(session)
+                .with(user(sellerEmail).roles("USER"))
+                .with(csrf());
     }
 }

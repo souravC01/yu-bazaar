@@ -13,20 +13,25 @@
         background-color: #fff;
         padding: 10px 20px;
         border-bottom: 1px solid #ddd;
-        display: flex;
-        justify-content: space-between;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
         align-items: center;
     }
     header img {
         height: 40px;
+        justify-self: start;
     }
     header h1 {
         margin: 0;
         font-size: 24px;
+        justify-self: center;
     }
     header div {
         display: flex;
         gap: 10px;
+        justify-self: end;
+        align-items: center;
+        flex-wrap: wrap;
     }
     header button {
         background-color: #000;
@@ -38,6 +43,18 @@
     }
     header button:hover {
         background-color: #444;
+    }
+    button:disabled {
+        cursor: wait;
+        opacity: 0.65;
+    }
+    .demo-banner {
+        margin: 16px auto 0;
+        max-width: 720px;
+        padding: 10px 16px;
+        border: 1px solid #d6a700;
+        background-color: #fff8d8;
+        color: #604b00;
     }
     .search-bar {
         margin: 20px 0;
@@ -173,6 +190,8 @@
   </div>
 </header>
 
+<p class="demo-banner" th:if="${isDemo}">Public demo mode is read-only. Listing creation, deletion, and seller inquiries are disabled.</p>
+
 <p th:if="${success}" th:text="${success}" style="color: #18733d;"></p>
 <p th:if="${error}" th:text="${error}" style="color: #b42318;"></p>
 
@@ -200,14 +219,15 @@
 </div>
 
 <!-- Add Item Button -->
-<button id="addItemButton">+</button>
+<button id="addItemButton" th:unless="${isDemo}" aria-label="Add listing">+</button>
 
 <!-- Add Item Modal -->
-<div id="addItemModal">
+<div id="addItemModal" th:unless="${isDemo}">
   <div style="text-align: right;">
     <button id="closeModal" style="background: none; border: none; font-size: 18px; cursor: pointer;">&times;</button>
   </div>
-  <form th:action="@{/add-item}" method="post" enctype="multipart/form-data">
+  <form id="addItemForm" th:action="@{/add-item}" method="post" enctype="multipart/form-data">
+    <input type="hidden" name="submissionToken" th:value="${listingSubmissionToken}">
     <label>Title:</label>
     <input type="text" name="title" required><br>
     <label>Price:</label>
@@ -291,7 +311,7 @@
     <textarea name="description" rows="4"></textarea><br>
     <label>Image:</label>
     <input type="file" name="image" accept="image/*" required><br>
-    <button type="submit">Add Item</button>
+    <button id="addItemSubmit" type="submit">Add Item</button>
   </form>
 </div>
 
@@ -344,20 +364,40 @@
   });
 
   // Modal functionality
-  document.getElementById("addItemButton").addEventListener("click", function () {
-      document.getElementById("addItemModal").style.display = "block";
-      document.getElementById("modalBackground").style.display = "block";
-  });
+  const addItemButton = document.getElementById("addItemButton");
+  const addItemModal = document.getElementById("addItemModal");
+  const closeModal = document.getElementById("closeModal");
+  const modalBackground = document.getElementById("modalBackground");
+  const addItemForm = document.getElementById("addItemForm");
 
-  document.getElementById("closeModal").addEventListener("click", function () {
-      document.getElementById("addItemModal").style.display = "none";
-      document.getElementById("modalBackground").style.display = "none";
-  });
+  if (addItemButton) {
+      addItemButton.addEventListener("click", function () {
+          addItemModal.style.display = "block";
+          modalBackground.style.display = "block";
+      });
 
-  document.getElementById("modalBackground").addEventListener("click", function () {
-      document.getElementById("addItemModal").style.display = "none";
-      document.getElementById("modalBackground").style.display = "none";
-  });
+      closeModal.addEventListener("click", function () {
+          addItemModal.style.display = "none";
+          modalBackground.style.display = "none";
+      });
+
+      modalBackground.addEventListener("click", function () {
+          addItemModal.style.display = "none";
+          modalBackground.style.display = "none";
+      });
+
+      addItemForm.addEventListener("submit", function (event) {
+          if (addItemForm.dataset.submitting === "true") {
+              event.preventDefault();
+              return;
+          }
+
+          addItemForm.dataset.submitting = "true";
+          const submitButton = document.getElementById("addItemSubmit");
+          submitButton.disabled = true;
+          submitButton.textContent = "Adding...";
+      });
+  }
 </script>
 </body>
 </html>

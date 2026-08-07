@@ -6,7 +6,9 @@ import com.example.demo.model.Item;
 import com.example.demo.model.User;
 import com.example.demo.repository.ItemRepository;
 import com.example.demo.repository.UserRepository;
+import com.example.demo.service.DemoAccountPolicy;
 import com.example.demo.storage.ImageStorageService;
+import jakarta.servlet.http.HttpSession;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -23,9 +25,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 
 @Controller
 public class ItemController {
+    private static final String LISTING_SUBMISSION_TOKEN = "listingSubmissionToken";
     private static final Set<String> VALID_WEAR_OPTIONS = Set.of("new", "used (like new)", "used", "poor");
     private static final List<String> VALID_LOCATIONS = Arrays.asList(
             "Accolade Building East", "Accolade Building West", "Archives of Ontario", "Atkinson",
@@ -52,20 +56,23 @@ public class ItemController {
     private final UserRepository userRepository;
     private final EmailSender emailSender;
     private final ImageStorageService imageStorageService;
+    private final DemoAccountPolicy demoAccountPolicy;
 
     public ItemController(ItemRepository itemRepository,
                           UserRepository userRepository,
                           EmailSender emailSender,
-                          ImageStorageService imageStorageService) {
+                          ImageStorageService imageStorageService,
+                          DemoAccountPolicy demoAccountPolicy) {
         this.itemRepository = itemRepository;
         this.userRepository = userRepository;
         this.emailSender = emailSender;
         this.imageStorageService = imageStorageService;
+        this.demoAccountPolicy = demoAccountPolicy;
     }
 
     @GetMapping("/home")
-    public String viewHomePage(Model model) {
-        model.addAttribute("items", itemRepository.findAll());
+    public String viewHomePage(Model model, HttpSession session) {
+        prepareHomeModel(model, session);
         return "home_page";
     }
 
@@ -84,17 +91,24 @@ public class ItemController {
                           @RequestParam String location,
                           @RequestParam String description,
                           @RequestParam("image") MultipartFile imageFile,
+                          @RequestParam(required = false) String submissionToken,
                           Authentication authentication,
+                          HttpSession session,
                           Model model,
                           RedirectAttributes redirectAttributes) {
+        demoAccountPolicy.requireWritable(authentication);
+        if (!consumeListingSubmissionToken(session, submissionToken)) {
+            redirectAttributes.addFlashAttribute("error", "This listing was already submitted. Refresh the page to try again.");
+            return "redirect:/home";
+        }
         if (title.isBlank() || price < 0) {
-            return homeWithError(model, "Enter a title and a non-negative price.");
+            return homeWithError(model, session, "Enter a title and a non-negative price.");
         }
         if (!VALID_WEAR_OPTIONS.contains(wear)) {
-            return homeWithError(model, "Invalid wear condition selected.");
+            return homeWithError(model, session, "Invalid wear condition selected.");
         }
         if (!VALID_LOCATIONS.contains(location)) {
-            return homeWithError(model, "Invalid location selected.");
+            return homeWithError(model, session, "Invalid location selected.");
         }
 
         String storedImageKey = null;
@@ -117,10 +131,10 @@ public class ItemController {
             redirectAttributes.addFlashAttribute("success", "Item added successfully.");
             return "redirect:/home";
         } catch (IllegalArgumentException exception) {
-            return homeWithError(model, exception.getMessage());
+            return homeWithError(model, session, exception.getMessage());
         } catch (Exception exception) {
             imageStorageService.deleteQuietly(storedImageKey);
-            return homeWithError(model, "The item could not be added. Please try again.");
+            return homeWithError(model, session, "The item could not be added. Please try again.");
         }
     }
 
@@ -129,6 +143,7 @@ public class ItemController {
                               @RequestParam String message,
                               Authentication authentication,
                               Model model) {
+        demoAccountPolicy.requireWritable(authentication);
         Item item = getItem(itemId);
         User buyer = userRepository.findByEmailIgnoreCase(authentication.getName())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
@@ -154,6 +169,7 @@ public class ItemController {
     public String deleteItem(@RequestParam Long id,
                              Authentication authentication,
                              RedirectAttributes redirectAttributes) {
+        demoAccountPolicy.requireWritable(authentication);
         Item item = getItem(id);
         if (!ownsItem(item, authentication)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN);
@@ -166,10 +182,11 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public String searchItems(@RequestParam String keyword, Model model) {
+    public String searchItems(@RequestParam String keyword, Model model, HttpSession session) {
         List<Item> searchResults = itemRepository.searchItems(keyword.trim());
         model.addAttribute("items", searchResults);
         model.addAttribute("searchKeyword", keyword.trim());
+        issueListingSubmissionToken(model, session);
         return "home_page";
     }
 
@@ -195,10 +212,32 @@ public class ItemController {
                 && item.getSellerEmail().equalsIgnoreCase(authentication.getName());
     }
 
-    private String homeWithError(Model model, String error) {
-        model.addAttribute("items", itemRepository.findAll());
+    private String homeWithError(Model model, HttpSession session, String error) {
+        prepareHomeModel(model, session);
         model.addAttribute("error", error);
         return "home_page";
+    }
+
+    private void prepareHomeModel(Model model, HttpSession session) {
+        model.addAttribute("items", itemRepository.findAll());
+        issueListingSubmissionToken(model, session);
+    }
+
+    private void issueListingSubmissionToken(Model model, HttpSession session) {
+        String token = UUID.randomUUID().toString();
+        session.setAttribute(LISTING_SUBMISSION_TOKEN, token);
+        model.addAttribute("listingSubmissionToken", token);
+    }
+
+    private boolean consumeListingSubmissionToken(HttpSession session, String submittedToken) {
+        synchronized (session) {
+            Object expectedToken = session.getAttribute(LISTING_SUBMISSION_TOKEN);
+            if (!(expectedToken instanceof String token) || !token.equals(submittedToken)) {
+                return false;
+            }
+            session.removeAttribute(LISTING_SUBMISSION_TOKEN);
+            return true;
+        }
     }
 
 }
