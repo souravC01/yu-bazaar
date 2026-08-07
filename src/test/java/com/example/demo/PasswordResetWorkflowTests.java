@@ -138,6 +138,20 @@ class PasswordResetWorkflowTests {
                 .andExpect(flash().attributeCount(1));
     }
 
+    @Test
+    void publicDemoAccountCannotRequestAPasswordReset() throws Exception {
+        mockMvc.perform(post("/forgot-password")
+                        .with(csrf())
+                        .param("email", "demo@yubazaar.app"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/forgot-password"))
+                .andExpect(flash().attribute(
+                        "success",
+                        "If that email belongs to an account, a password-reset link has been prepared."
+                ))
+                .andExpect(flash().attributeCount(1));
+    }
+
     private String requestResetLink(String email) throws Exception {
         MvcResult result = mockMvc.perform(post("/forgot-password")
                         .with(csrf())

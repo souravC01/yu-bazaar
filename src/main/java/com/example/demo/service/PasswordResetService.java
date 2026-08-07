@@ -30,22 +30,30 @@ public class PasswordResetService {
     private final EmailSender emailSender;
     private final Duration tokenTtl;
     private final String baseUrl;
+    private final DemoAccountPolicy demoAccountPolicy;
 
     public PasswordResetService(UserRepository userRepository,
                                 PasswordEncoder passwordEncoder,
                                 EmailSender emailSender,
                                 @Value("${app.password-reset.ttl}") Duration tokenTtl,
-                                @Value("${app.base-url}") String baseUrl) {
+                                @Value("${app.base-url}") String baseUrl,
+                                DemoAccountPolicy demoAccountPolicy) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.emailSender = emailSender;
         this.tokenTtl = tokenTtl;
         this.baseUrl = baseUrl.replaceAll("/+$", "");
+        this.demoAccountPolicy = demoAccountPolicy;
     }
 
     @Transactional
     public Optional<ResetRequestResult> requestReset(String email) {
-        return userRepository.findByEmailIgnoreCase(normalizeEmail(email))
+        String normalizedEmail = normalizeEmail(email);
+        if (demoAccountPolicy.isDemo(normalizedEmail)) {
+            return Optional.empty();
+        }
+
+        return userRepository.findByEmailIgnoreCase(normalizedEmail)
                 .map(user -> {
                     String rawToken = generateToken();
                     String resetUrl = buildResetUrl(rawToken);
@@ -76,6 +84,10 @@ public class PasswordResetService {
         }
 
         User user = matchingUser.get();
+        if (demoAccountPolicy.isDemo(user.getEmail())) {
+            clearResetToken(user);
+            return false;
+        }
         if (isExpired(user)) {
             clearResetToken(user);
             return false;
@@ -95,6 +107,10 @@ public class PasswordResetService {
         }
 
         User user = matchingUser.get();
+        if (demoAccountPolicy.isDemo(user.getEmail())) {
+            clearResetToken(user);
+            return false;
+        }
         if (isExpired(user)) {
             clearResetToken(user);
             return false;

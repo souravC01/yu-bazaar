@@ -10,6 +10,15 @@ This repository is an independently maintained portfolio edition of a four-perso
 
 The free Render instance may take about a minute to wake after a period of inactivity.
 
+## Public Demo
+
+Recruiters and reviewers without a York University email can use the restricted production demo account:
+
+- **Email:** `demo@yubazaar.app`
+- **Password:** `Demo@YuBazaar2026`
+
+The credentials are intentionally public. Demo access is read-only: visitors can browse listings, search, view product details, and inspect the profile, but cannot create or delete listings, contact sellers, or reset the demo password.
+
 ## Current Status
 
 The portfolio edition is deployed and its primary production workflow has been verified: York email registration, OTP delivery, account verification, sign-in, listing creation, and persistent image upload. Automated tests also cover authentication boundaries, password recovery, listing ownership, media delivery, and owner-only deletion.
