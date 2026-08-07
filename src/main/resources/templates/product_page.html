@@ -144,8 +144,15 @@
     <p><strong>Location:</strong> <span th:text="${item.location}">York Village</span></p>
   </div>
 
+  <p th:if="${success}" th:text="${success}" style="color: #18733d; text-align: center;"></p>
+  <p th:if="${error}" th:text="${error}" style="color: #b42318; text-align: center;"></p>
+
   <!-- Contact Button -->
-  <button class="contact-button" id="contactDetailsButton">Contact Details</button>
+  <button class="contact-button" id="contactDetailsButton" th:if="${!isOwner}">Contact Seller</button>
+  <form th:if="${isOwner}" th:action="@{/delete-item}" method="post">
+    <input type="hidden" name="id" th:value="${item.id}">
+    <button type="submit" class="contact-button">Delete Listing</button>
+  </form>
 </div>
 
 <!-- Inquiry Modal -->
@@ -155,12 +162,6 @@
   </div>
   <h2 style="text-align: center;">Send an Inquiry</h2>
   <form th:action="@{/send-inquiry}" method="post">
-    <label for="buyerName">Buyer Name:</label>
-    <input type="text" id="buyerName" name="buyerName" required>
-
-    <label for="buyerEmail">Buyer Email:</label>
-    <input type="email" id="buyerEmail" name="buyerEmail" required>
-
     <label for="message">Message:</label>
     <textarea id="message" name="message" rows="4" required></textarea>
 
@@ -173,10 +174,13 @@
 
 <script>
   // Open the modal when the button is clicked
-  document.getElementById("contactDetailsButton").addEventListener("click", function () {
-    document.getElementById("inquiryModal").style.display = "block";
-    document.getElementById("modalBackground").style.display = "block";
-  });
+  const contactDetailsButton = document.getElementById("contactDetailsButton");
+  if (contactDetailsButton) {
+    contactDetailsButton.addEventListener("click", function () {
+      document.getElementById("inquiryModal").style.display = "block";
+      document.getElementById("modalBackground").style.display = "block";
+    });
+  }
 
   // Close the modal when the close button is clicked
   document.getElementById("closeInquiryModal").addEventListener("click", function () {

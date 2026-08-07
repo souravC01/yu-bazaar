@@ -1,34 +1,51 @@
 package com.example.demo.Email;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.mail.MailException;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
 
 @Service
 public class EmailSender {
-    @Autowired
-    private JavaMailSender mailSender;
+    private static final Logger LOGGER = LoggerFactory.getLogger(EmailSender.class);
 
-    //Registration Email
-    public void sendEmail(String toEmail,
-                          String subject,
-                          String body){
+    private final JavaMailSender mailSender;
+    private final boolean enabled;
+    private final String fromAddress;
+
+    public EmailSender(JavaMailSender mailSender,
+                       @Value("${app.mail.enabled}") boolean enabled,
+                       @Value("${app.mail.from}") String fromAddress) {
+        this.mailSender = mailSender;
+        this.enabled = enabled;
+        this.fromAddress = fromAddress;
+    }
+
+    public boolean sendEmail(String toEmail, String subject, String body) {
+        if (!enabled) {
+            LOGGER.info("Email delivery is disabled; skipped message '{}' to {}", subject, toEmail);
+            return false;
+        }
 
         SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom("yubazaarassistant@gmail.com");
+        message.setFrom(fromAddress);
         message.setTo(toEmail);
         message.setText(body);
         message.setSubject(subject);
 
-        mailSender.send(message);
-
-        System.out.println("Mail Sent");
-
+        try {
+            mailSender.send(message);
+            return true;
+        } catch (MailException exception) {
+            LOGGER.error("Unable to send email '{}' to {}", subject, toEmail, exception);
+            return false;
+        }
     }
 
-    //Verification OTP Email sender
-    public void sendOtpEmail(String toEmail, String otp) {
+    public boolean sendOtpEmail(String toEmail, String otp) {
         String subject = "Your OTP for YU Bazaar Registration";
         String body = "Dear User,\n\n"
                 + "Thank you for registering at YU Bazaar. Please use the following OTP to verify your account:\n\n"
@@ -37,6 +54,6 @@ public class EmailSender {
                 + "Regards,\n"
                 + "YU Bazaar Team";
 
-        sendEmail(toEmail, subject, body);
+        return sendEmail(toEmail, subject, body);
     }
 }
