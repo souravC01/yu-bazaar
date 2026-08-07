@@ -15,13 +15,16 @@ public class EmailSender {
     private final JavaMailSender mailSender;
     private final boolean enabled;
     private final String fromAddress;
+    private final String fromName;
 
     public EmailSender(JavaMailSender mailSender,
                        @Value("${app.mail.enabled}") boolean enabled,
-                       @Value("${app.mail.from}") String fromAddress) {
+                       @Value("${app.mail.from}") String fromAddress,
+                       @Value("${app.mail.from-name}") String fromName) {
         this.mailSender = mailSender;
         this.enabled = enabled;
         this.fromAddress = fromAddress;
+        this.fromName = fromName;
     }
 
     public boolean sendEmail(String toEmail, String subject, String body) {
@@ -31,7 +34,7 @@ public class EmailSender {
         }
 
         SimpleMailMessage message = new SimpleMailMessage();
-        message.setFrom(fromAddress);
+        message.setFrom(String.format("%s <%s>", fromName, fromAddress));
         message.setTo(toEmail);
         message.setText(body);
         message.setSubject(subject);
