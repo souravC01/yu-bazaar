@@ -19,6 +19,16 @@ Recruiters and reviewers without a York University email can use the restricted 
 
 The credentials are intentionally public. Demo access is read-only: visitors can browse listings, search, view product details, and inspect the profile, but cannot create or delete listings, contact sellers, or reset the demo password.
 
+## Screenshots
+
+### Marketplace
+
+![YU Bazaar marketplace in public demo mode](docs/screenshots/marketplace-demo.png)
+
+### Product Details
+
+![YU Bazaar product details in public demo mode](docs/screenshots/product-demo.png)
+
 ## Current Status
 
 The portfolio edition is deployed and its primary production workflow has been verified: York email registration, OTP delivery, account verification, sign-in, listing creation, and persistent image upload. Automated tests also cover authentication boundaries, password recovery, listing ownership, media delivery, and owner-only deletion.
