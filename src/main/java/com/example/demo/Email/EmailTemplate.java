@@ -12,11 +12,11 @@ public enum EmailTemplate {
                     "- Browse and buy from a variety of items posted by fellow YorkU students.\n" +
                     "- Connect with your campus community in a safe and convenient way.\n\n" +
                     "We’re excited to have you join our growing marketplace!\n" +
-                    "If you have any questions, feel free to reach out to us at yubazaarassistant@gmail.com.\n\n" +
+                    "If you have any questions, feel free to reach out to us at yubazaarsupport@gmail.com.\n\n" +
                     "Let’s make buying and selling on campus easy, fun, and secure.\n\n" +
                     "Happy shopping and selling!\n" +
                     "The Yu Bazaar Team\n\n" +
-                    "Support: yubazaarassistant@gmail.com"
+                    "Support: yubazaarsupport@gmail.com"
     ),
     PASSWORD_RESET(
             "Reset Your YU Bazaar Password",

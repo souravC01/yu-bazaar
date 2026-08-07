@@ -1,8 +1,10 @@
 # YU Bazaar
 
+[![CI](https://github.com/souravC01/yu-bazaar/actions/workflows/ci.yml/badge.svg)](https://github.com/souravC01/yu-bazaar/actions/workflows/ci.yml)
+
 YU Bazaar is a marketplace application created for York University students to list, discover, and inquire about items available within the campus community.
 
-This repository is an independently maintained portfolio edition of a four-person course project. It starts from a sanitized snapshot of the original application and documents the modernization work separately from the instructor-hosted repository.
+This repository is an independently maintained portfolio edition of a four-person course project. It was created from a sanitized snapshot of the instructor-hosted course repository, which remains unchanged, and evolves the original local application into a publicly deployed cloud application.
 
 **Live application:** [yu-bazaar.onrender.com](https://yu-bazaar.onrender.com)
 
@@ -51,6 +53,19 @@ My verified contributions to the original project included:
 - Fixes to the item-listing and home-page workflow
 
 All original contributors retain credit for the team project. This repository preserves the project's MIT license and clearly separates the original coursework from subsequent portfolio improvements.
+
+## Portfolio Modernization
+
+After the course ended, I created this independent repository and prepared the application for continued development and public deployment. My modernization work includes:
+
+- Replacing the temporary course database with Neon PostgreSQL and versioned Flyway migrations
+- Securing authentication with BCrypt, protected routes, expiring verification codes, and single-use password reset links
+- Moving uploaded listing images from local disk to private Cloudflare R2 object storage
+- Containerizing and deploying the application on Render with health checks and persistent cloud services
+- Configuring branded transactional email delivery through Brevo
+- Adding automated coverage for authentication, recovery, listing ownership, deletion, and media delivery
+
+This work preserves the original team's attribution while demonstrating the production engineering completed after the course project.
 
 ## Local Development
 
