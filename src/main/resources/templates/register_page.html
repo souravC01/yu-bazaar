@@ -119,11 +119,11 @@
     <div class="error" id="dobError"></div>
 
     <label for="password">Password:</label>
-    <input type="password" id="password" name="password" placeholder="Enter your password" required>
+    <input type="password" id="password" name="password" minlength="8" placeholder="Enter your password" required>
     <div class="error" id="passwordError"></div>
 
     <label for="confirmPassword">Confirm Password:</label>
-    <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Re-enter your password" required>
+    <input type="password" id="confirmPassword" name="confirmPassword" minlength="8" placeholder="Re-enter your password" required>
     <div class="error" id="confirmPasswordError"></div>
 
     <button type="submit">Register</button>
@@ -178,8 +178,8 @@
         }
 
         // Validate Password
-        if (!password || password.length < 6) {
-            document.getElementById('passwordError').textContent = 'Password must be at least 6 characters.';
+        if (!password || password.length < 8) {
+            document.getElementById('passwordError').textContent = 'Password must be at least 8 characters.';
             isValid = false;
         }
 
