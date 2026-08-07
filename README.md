@@ -4,9 +4,24 @@ YU Bazaar is a marketplace application created for York University students to l
 
 This repository is an independently maintained portfolio edition of a four-person course project. It starts from a sanitized snapshot of the original application and documents the modernization work separately from the instructor-hosted repository.
 
+**Live application:** [yu-bazaar.onrender.com](https://yu-bazaar.onrender.com)
+
+The free Render instance may take about a minute to wake after a period of inactivity.
+
 ## Current Status
 
-The portfolio edition is under active modernization. PostgreSQL migration, secure configuration, session-backed authentication, password hashing, one-time password-reset links, listing ownership checks, persistent image storage, containerized deployment, and workflow tests are now in place. Broader validation remains active work.
+The portfolio edition is deployed and its primary production workflow has been verified: York email registration, OTP delivery, account verification, sign-in, listing creation, and persistent image upload. Automated tests also cover authentication boundaries, password recovery, listing ownership, media delivery, and owner-only deletion.
+
+## Features
+
+- York University email registration with one-time verification codes
+- BCrypt password hashing and session-backed authentication
+- Expiring, single-use password reset links
+- Marketplace listings with search and live suggestions
+- Private image storage in Cloudflare R2
+- Seller inquiries delivered by email
+- Owner-only listing deletion and media cleanup
+- Responsive server-rendered pages built with Thymeleaf
 
 ## Technology
 
@@ -64,6 +79,13 @@ The repository includes a multi-stage `Dockerfile` and `render.yaml` Blueprint. 
 Production email uses Brevo's STARTTLS relay on port `2525`, which remains available from Render's free web services. Explicit mail timeouts keep registration and password recovery responsive if the email provider is unavailable.
 
 The free Render instance may sleep after inactivity. Neon stores application data and Cloudflare R2 stores uploaded media, so restarts do not lose persistent state.
+
+### Production Architecture
+
+- Render runs the containerized Spring Boot application.
+- Neon provides managed PostgreSQL with Flyway-controlled migrations.
+- Cloudflare R2 stores private listing images through its S3-compatible API.
+- Brevo delivers verification, recovery, listing, and inquiry emails.
 
 ## Testing
 
