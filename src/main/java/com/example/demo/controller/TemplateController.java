@@ -39,7 +39,7 @@ public class TemplateController {
         this.showLocalCodes = showLocalCodes;
     }
 
-    @GetMapping("/")
+    @GetMapping({"/", "/login"})
     public String showLoginPage(@RequestParam(required = false) String error, Model model) {
         if (error != null) {
             model.addAttribute("error", "Invalid credentials or the account has not been verified.");
