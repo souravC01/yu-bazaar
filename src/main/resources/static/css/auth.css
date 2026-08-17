@@ -1,0 +1,209 @@
+/* ==========================================================================
+   YU BAZAAR - AUTHENTICATION & VERIFICATION STYLES
+   Minimalist Editorial Cards on Cream Canvas with Mint Aloe Trust Accents
+   ========================================================================== */
+
+.auth-body-wrapper {
+  min-height: 100vh;
+  background-color: var(--canvas-cream);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 16px;
+}
+
+.auth-card-container {
+  width: 100%;
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+/* Brand Header */
+.auth-brand-header {
+  text-align: center;
+  margin-bottom: var(--spacing-xl);
+}
+
+.auth-brand-logo {
+  height: 48px;
+  width: auto;
+  border-radius: var(--radius-md);
+  margin: 0 auto 12px;
+  box-shadow: var(--shadow-level-3);
+}
+
+.auth-brand-title {
+  font-family: var(--font-family-display);
+  font-size: 28px;
+  font-weight: 600;
+  color: var(--primary-ink);
+  letter-spacing: -0.5px;
+  margin-bottom: 4px;
+}
+
+.auth-brand-tagline {
+  font-size: 14px;
+  color: var(--shade-50);
+}
+
+/* Elevated White Card */
+.auth-card {
+  background-color: var(--canvas-light);
+  border: 1px solid var(--hairline-light);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-level-3);
+  padding: 36px 32px;
+  margin-bottom: var(--spacing-xl);
+}
+
+.auth-card-title {
+  font-family: var(--font-family-display);
+  font-size: 22px;
+  font-weight: 600;
+  color: var(--primary-ink);
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.auth-card-subtitle {
+  font-size: 14px;
+  color: var(--shade-50);
+  text-align: center;
+  margin-bottom: 24px;
+}
+
+/* Step Progress Indicator */
+.step-progress-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  position: relative;
+  margin-bottom: 32px;
+}
+
+.step-progress-bar::before {
+  content: "";
+  position: absolute;
+  top: 14px;
+  left: 24px;
+  right: 24px;
+  height: 2px;
+  background-color: var(--shade-30);
+  z-index: 1;
+}
+
+.step-item {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.step-circle {
+  width: 28px;
+  height: 28px;
+  border-radius: var(--radius-pill);
+  background-color: var(--shade-20);
+  border: 2px solid var(--shade-30);
+  color: var(--shade-50);
+  font-size: 12px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+}
+
+.step-item.active .step-circle {
+  background-color: var(--primary-ink);
+  border-color: var(--primary-ink);
+  color: var(--on-primary);
+}
+
+.step-item.completed .step-circle {
+  background-color: var(--aloe-10);
+  border-color: #059669;
+  color: #064e3b;
+}
+
+.step-label {
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--shade-50);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.step-item.active .step-label {
+  color: var(--primary-ink);
+}
+
+/* Trust Guarantee Banner */
+.auth-trust-banner {
+  background-color: var(--aloe-10);
+  border: 1px solid rgba(6, 78, 59, 0.12);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  margin-top: 24px;
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  color: #064e3b;
+}
+
+.auth-trust-banner svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.auth-trust-title {
+  font-size: 13.5px;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.auth-trust-desc {
+  font-size: 12.5px;
+  line-height: 1.4;
+  opacity: 0.9;
+}
+
+/* Demo Credentials Box */
+.demo-quick-login {
+  background-color: #fefce8;
+  border: 1px solid #fef08a;
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  margin-top: 20px;
+  text-align: center;
+}
+
+.demo-quick-login-text {
+  font-size: 13px;
+  color: #854d0e;
+  margin-bottom: 10px;
+}
+
+/* Navigation Links below card */
+.auth-footer-links {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  font-size: 14px;
+  color: var(--shade-60);
+}
+
+.auth-footer-links a {
+  color: var(--primary-ink);
+  font-weight: 600;
+}
+
+.auth-footer-links a:hover {
+  text-decoration: underline;
+}

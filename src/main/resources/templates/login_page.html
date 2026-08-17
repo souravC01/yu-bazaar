@@ -1,113 +1,77 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>YU Bazaar - Login</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-            background-color: #f9f9f9;
-        }
-        header {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 30px;
-        }
-        header img {
-            height: 50px;
-            margin-right: 10px;
-        }
-        header h1 {
-            font-size: 28px;
-            margin: 0;
-        }
-        .login-container {
-            background-color: #fff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-            width: 300px;
-        }
-        .login-container label {
-            display: block;
-            font-weight: bold;
-            margin-bottom: 5px;
-            text-align: left;
-        }
-        .login-container input {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 15px;
-            border: 1px solid #ccc;
-            border-radius: 4px;
-            background-color: #f0f0f0;
-        }
-        .login-container button {
-            width: 30%;
-            padding: 10px;
-            border: none;
-            border-radius: 4px;
-            background-color: #000;
-            color: #fff;
-            cursor: pointer;
-        }
-        .login-container button:hover {
-            background-color: #444;
-        }
-        .button-group {
-            display: flex;
-            justify-content: space-between;
-        }
-        .error {
-            color: red;
-            font-size: 14px;
-            margin-bottom: 15px;
-        }
-        .success {
-            color: green;
-            font-size: 14px;
-            margin-bottom: 15px;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sign In | YU Bazaar</title>
+
+  <!-- Design System Tokens & Components -->
+  <link rel="stylesheet" th:href="@{/css/theme.css}" href="/css/theme.css">
+  <link rel="stylesheet" th:href="@{/css/components.css}" href="/css/components.css">
+  <link rel="stylesheet" th:href="@{/css/auth.css}" href="/css/auth.css">
 </head>
-<body>
-<header>
-    <img src="resources/static/images/YUB_Logo.jpg" alt="YU Bazaar Logo" th:src="@{/images/YUB_Logo.jpg}">
-    <h1>YU Bazaar</h1>
-</header>
+<body class="auth-body-wrapper">
 
-<div class="login-container">
-    <!-- Error messages -->
-    <div th:if="${error}" class="error">
-        <p th:text="${error}"></p>
-    </div>
+<div class="auth-card-container">
+  <!-- Brand Header -->
+  <div class="auth-brand-header">
+    <img th:src="@{/images/YUB_Logo.jpg}" src="/images/YUB_Logo.jpg" alt="YU Bazaar Logo" class="auth-brand-logo">
+    <h1 class="auth-brand-title">YU Bazaar</h1>
+    <p class="auth-brand-tagline">The Verified York University Student Marketplace</p>
+  </div>
 
-    <!-- Success messages -->
-    <div th:if="${success}" class="success">
-        <p th:text="${success}"></p>
-    </div>
+  <!-- Main Auth Card -->
+  <div class="auth-card">
+    <h2 class="auth-card-title">Welcome Back</h2>
+    <p class="auth-card-subtitle">Sign in with your York student credentials</p>
+
+    <!-- Success & Error Alerts -->
+    <div class="alert-box alert-danger" th:if="${error}" th:text="${error}"></div>
+    <div class="alert-box alert-success" th:if="${success}" th:text="${success}"></div>
 
     <!-- Login Form -->
     <form th:action="@{/login}" method="post">
-        <label for="email">York Email:</label>
-        <input type="email" id="email" name="email" placeholder="Enter your York email" required>
+      <div class="form-group">
+        <label class="form-label" for="email">York University Email</label>
+        <input type="email" id="email" name="email" class="form-input" placeholder="student@my.yorku.ca" required>
+        <span class="form-hint">Must be an active @my.yorku.ca or @yorku.ca email</span>
+      </div>
 
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password" placeholder="Enter your password" required>
+      <div class="form-group">
+        <label class="form-label" for="password">Password</label>
+        <input type="password" id="password" name="password" class="form-input" placeholder="••••••••" required>
+      </div>
 
-        <div class="button-group">
-            <button type="submit">Login</button>
-            <button type="button" onclick="location.href='/register'">Register</button>
-            <button type="button" onclick="location.href='/forgot-password'">Forgot Password?</button>
-        </div>
+      <div style="margin-top: 24px;">
+        <button type="submit" class="btn btn-primary-pill btn-full btn-lg">Sign In to Campus Market</button>
+      </div>
     </form>
+
+    <!-- Demo Mode Quick Prefill -->
+    <div class="demo-quick-login" th:if="${isDemo != null and isDemo}">
+      <p class="demo-quick-login-text">👋 Viewing as a guest or recruiter? Use demo access:</p>
+      <button type="button" class="btn btn-outline-light btn-sm" onclick="prefillDemo()">Auto-Fill Demo Credentials</button>
+    </div>
+  </div>
+
+  <!-- Bottom Navigation Links -->
+  <div class="auth-footer-links">
+    <div>New York student? <a th:href="@{/register}">Create a student account</a></div>
+    <div><a th:href="@{/forgot-password}">Forgot your password?</a></div>
+    <div style="margin-top: 12px;"><a th:href="@{/}" style="color: var(--shade-50); font-weight: 400;">&larr; Return to Browse Marketplace</a></div>
+  </div>
 </div>
+
+<script>
+  function prefillDemo() {
+    const emailField = document.getElementById("email");
+    const passField = document.getElementById("password");
+    if (emailField && passField) {
+      emailField.value = "demo@my.yorku.ca";
+      passField.value = "demo12345";
+    }
+  }
+</script>
+
 </body>
 </html>

@@ -1,108 +1,79 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <title>YU Bazaar - Verify OTP</title>
-  <style>
-    /* Page styles */
-    body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        height: 100vh;
-        background-color: #f9f9f9;
-    }
-    .verify-container {
-        background-color: #fff;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        width: 350px;
-    }
-    .verify-container label {
-        display: block;
-        font-weight: bold;
-        margin-bottom: 5px;
-        text-align: left;
-    }
-    .verify-container input {
-        width: 100%;
-        padding: 8px;
-        margin-bottom: 15px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-        background-color: #f0f0f0;
-    }
-    .verify-container button {
-        width: 100%;
-        padding: 10px;
-        border: none;
-        border-radius: 4px;
-        background-color: #000;
-        color: #fff;
-        cursor: pointer;
-    }
-    .verify-container button:hover {
-        background-color: #444;
-    }
-    .error {
-        color: red;
-        font-size: 12px;
-        margin-top: -10px;
-        margin-bottom: 10px;
-    }
-    .success {
-        color: green;
-        font-size: 14px;
-        margin-bottom: 15px;
-    }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Verify York Email | YU Bazaar</title>
 
-    /* Logo styles */
-    .logo-container {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        margin-bottom: 20px;
-    }
-    .logo-container img {
-        width: 50px;
-        height: auto;
-        margin-right: 10px;
-    }
-    .logo-container h1 {
-        font-size: 24px;
-        margin: 0;
-    }
-  </style>
+  <!-- Design System Tokens & Components -->
+  <link rel="stylesheet" th:href="@{/css/theme.css}" href="/css/theme.css">
+  <link rel="stylesheet" th:href="@{/css/components.css}" href="/css/components.css">
+  <link rel="stylesheet" th:href="@{/css/auth.css}" href="/css/auth.css">
 </head>
-<body>
-<div class="verify-container">
-  <!-- Logo -->
-  <div class="logo-container">
-    <img src="resources/static/images/YUB_Logo.jpg" alt="YU Bazaar Logo" th:src="@{/images/YUB_Logo.jpg}">
-    <h1>YU Bazaar</h1>
+<body class="auth-body-wrapper">
+
+<div class="auth-card-container">
+  <!-- Brand Header -->
+  <div class="auth-brand-header">
+    <img th:src="@{/images/YUB_Logo.jpg}" src="/images/YUB_Logo.jpg" alt="YU Bazaar Logo" class="auth-brand-logo">
+    <h1 class="auth-brand-title">YU Bazaar</h1>
+    <p class="auth-brand-tagline">The Verified York University Student Marketplace</p>
   </div>
 
-  <!-- Success and Error Messages -->
-  <p class="success" th:if="${success}" th:text="${success}"></p>
-  <p class="error" th:if="${error}" th:text="${error}"></p>
-  <p class="success" th:if="${localOtp}">Local verification code: <strong th:text="${localOtp}"></strong></p>
+  <!-- Verification Card -->
+  <div class="auth-card">
+    <!-- Step Progress Indicator -->
+    <div class="step-progress-bar">
+      <div class="step-item completed">
+        <div class="step-circle">&#10003;</div>
+        <span class="step-label">Student Info</span>
+      </div>
+      <div class="step-item active">
+        <div class="step-circle">2</div>
+        <span class="step-label">OTP Code</span>
+      </div>
+      <div class="step-item">
+        <div class="step-circle">3</div>
+        <span class="step-label">Ready</span>
+      </div>
+    </div>
 
-  <!-- OTP Verification Form -->
-  <form th:action="@{/verify}" method="post">
-    <label for="email">Email:</label>
-    <input type="email" id="email" name="email" th:value="${email}" placeholder="Enter your email" required>
-    <div class="error" th:if="${emailError}" th:text="${emailError}"></div>
+    <h2 class="auth-card-title">Check Your Inbox</h2>
+    <p class="auth-card-subtitle">We sent a 6-digit verification code to your York email address</p>
 
-    <label for="otp">OTP:</label>
-    <input type="text" id="otp" name="otp" placeholder="Enter your OTP" required>
-    <div class="error" th:if="${otpError}" th:text="${otpError}"></div>
+    <!-- Flash Messages -->
+    <div class="alert-box alert-success" th:if="${success}" th:text="${success}"></div>
+    <div class="alert-box alert-danger" th:if="${error}" th:text="${error}"></div>
+    <div class="alert-box alert-success" th:if="${localOtp}">
+      <span>Local verification code: <strong th:text="${localOtp}"></strong></span>
+    </div>
 
-    <button type="submit">Verify</button>
-  </form>
+    <!-- OTP Form -->
+    <form th:action="@{/verify}" method="post">
+      <div class="form-group">
+        <label class="form-label" for="email">York Email</label>
+        <input type="email" id="email" name="email" th:value="${email}" class="form-input" placeholder="student@my.yorku.ca" required>
+        <div class="form-error" th:if="${emailError}" th:text="${emailError}"></div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="otp">6-Digit Verification Code</label>
+        <input type="text" id="otp" name="otp" class="form-input" placeholder="123456" maxlength="10" style="letter-spacing: 4px; font-size: 18px; text-align: center;" required>
+        <div class="form-error" th:if="${otpError}" th:text="${otpError}"></div>
+      </div>
+
+      <div style="margin-top: 24px;">
+        <button type="submit" class="btn btn-primary-pill btn-full btn-lg">Verify &amp; Activate Account</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Bottom Links -->
+  <div class="auth-footer-links">
+    <div>Didn't receive a code? Check your spam folder or <a th:href="@{/register}">try again</a></div>
+    <div style="margin-top: 8px;"><a th:href="@{/login}">&larr; Back to Sign In</a></div>
+  </div>
 </div>
+
 </body>
 </html>
