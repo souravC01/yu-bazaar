@@ -1,0 +1,528 @@
+/* ==========================================================================
+   YU BAZAAR - MARKETPLACE HOME STYLES
+   Dual-Track Layout: Cinematic Night Hero + Warm Cream Product Grid
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. GLOBAL TOP NAVIGATION (Dark Narrative Track)
+   -------------------------------------------------------------------------- */
+.site-header {
+  background-color: var(--canvas-night);
+  border-bottom: 1px solid var(--hairline-dark);
+  padding: 16px 32px;
+  position: sticky;
+  top: 0;
+  z-index: 500;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.nav-container {
+  max-width: 1360px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-lg);
+}
+
+.brand-wrapper {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  text-decoration: none;
+}
+
+.brand-logo {
+  height: 38px;
+  width: auto;
+  border-radius: var(--radius-sm);
+  background-color: #ffffff;
+  padding: 2px;
+}
+
+.brand-name {
+  font-family: var(--font-family-display);
+  font-size: 22px;
+  font-weight: 550;
+  color: var(--on-dark);
+  letter-spacing: -0.3px;
+}
+
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+}
+
+.user-pill-info {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--shade-30);
+  font-size: 14px;
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--hairline-dark-trans);
+}
+
+/* --------------------------------------------------------------------------
+   2. CINEMATIC NIGHT HERO SECTION
+   -------------------------------------------------------------------------- */
+.hero-cinematic {
+  background-color: var(--canvas-night);
+  color: var(--on-dark);
+  position: relative;
+  overflow: hidden;
+  padding: 80px 24px 100px;
+  text-align: center;
+}
+
+.hero-cinematic::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: 
+    radial-gradient(circle at 50% 30%, rgba(20, 35, 30, 0.6) 0%, rgba(0, 0, 0, 0.95) 75%),
+    url("https://images.unsplash.com/photo-1541339907198-e08756dedf3f?auto=format&fit=crop&w=2000&q=80") center/cover no-repeat;
+  opacity: 0.35;
+  filter: contrast(1.1);
+  pointer-events: none;
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  max-width: 980px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.hero-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background-color: rgba(193, 251, 212, 0.12);
+  color: var(--aloe-10);
+  border: 1px solid rgba(193, 251, 212, 0.3);
+  padding: 6px 16px;
+  border-radius: var(--radius-pill);
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  margin-bottom: var(--spacing-xl);
+  backdrop-filter: blur(8px);
+}
+
+.hero-headline {
+  font-family: var(--font-family-display);
+  font-size: clamp(38px, 5.5vw, 84px);
+  font-weight: 330;
+  line-height: 1.06;
+  letter-spacing: -0.5px;
+  margin-bottom: var(--spacing-xl);
+  color: #ffffff;
+}
+
+.hero-headline em {
+  font-style: normal;
+  color: var(--aloe-10);
+}
+
+/* Hero Search Capsule */
+.hero-search-wrapper {
+  width: 100%;
+  max-width: 660px;
+  margin: 0 auto var(--spacing-xl);
+  position: relative;
+}
+
+.hero-search-bar {
+  background-color: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: var(--radius-pill);
+  padding: 6px 8px 6px 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  transition: all var(--transition-fast);
+}
+
+.hero-search-bar:focus-within {
+  background-color: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.4);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.2);
+}
+
+.search-icon {
+  width: 20px;
+  height: 20px;
+  color: var(--shade-40);
+  flex-shrink: 0;
+}
+
+.hero-search-input {
+  background: transparent;
+  border: none;
+  color: var(--on-dark);
+  font-family: var(--font-family-body);
+  font-size: 16px;
+  width: 100%;
+  outline: none;
+}
+
+.hero-search-input::placeholder {
+  color: var(--shade-40);
+}
+
+.search-dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background-color: #121316;
+  border: 1px solid var(--hairline-dark);
+  border-radius: var(--radius-xl);
+  list-style: none;
+  padding: 8px;
+  box-shadow: var(--shadow-level-4);
+  z-index: 100;
+  text-align: left;
+  display: none;
+}
+
+.search-dropdown li {
+  padding: 10px 16px;
+  border-radius: var(--radius-md);
+  font-size: 14.5px;
+  color: var(--shade-30);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.search-dropdown li:hover {
+  background-color: rgba(255, 255, 255, 0.08);
+  color: var(--on-dark);
+}
+
+/* Category Filter Chips */
+.hero-categories {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: var(--spacing-xxl);
+}
+
+.category-chip {
+  padding: 8px 18px;
+  border-radius: var(--radius-pill);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--hairline-dark-trans);
+  color: var(--shade-30);
+  font-size: 13.5px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-decoration: none;
+}
+
+.category-chip:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: var(--on-dark);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.category-chip.active {
+  background: var(--on-dark);
+  color: var(--primary-ink);
+  border-color: var(--on-dark);
+  font-weight: 600;
+}
+
+/* --------------------------------------------------------------------------
+   3. TRANSACTIONAL MARKETPLACE SECTION (Cream Canvas)
+   -------------------------------------------------------------------------- */
+.marketplace-container {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 64px 32px 96px;
+}
+
+.section-header {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-xl);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--hairline-light);
+}
+
+.section-title {
+  font-family: var(--font-family-display);
+  font-size: 32px;
+  font-weight: 400;
+  color: var(--primary-ink);
+  letter-spacing: -0.3px;
+}
+
+.listing-count {
+  font-size: 14px;
+  color: var(--shade-50);
+}
+
+/* Listing Grid Layout */
+.listing-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 28px;
+}
+
+.empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 80px 24px;
+  background-color: var(--canvas-light);
+  border-radius: var(--radius-xl);
+  border: 1px dashed var(--hairline-light);
+}
+
+.empty-state-title {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.empty-state-desc {
+  color: var(--shade-50);
+  margin-bottom: 24px;
+}
+
+/* Individual Listing Card */
+.listing-card {
+  background-color: var(--canvas-light);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--hairline-light);
+  box-shadow: var(--shadow-level-3);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: all var(--transition-normal);
+  position: relative;
+}
+
+.listing-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-card-hover);
+}
+
+.listing-media-wrap {
+  position: relative;
+  width: 100%;
+  padding-top: 75%; /* 4:3 Aspect Ratio */
+  background-color: #f0f0eb;
+  overflow: hidden;
+}
+
+.listing-img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform var(--transition-slow);
+}
+
+.listing-card:hover .listing-img {
+  transform: scale(1.04);
+}
+
+.listing-tags {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 2;
+}
+
+.listing-body {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  text-align: left;
+}
+
+.listing-title-link {
+  font-family: var(--font-family-display);
+  font-size: 17px;
+  font-weight: 600;
+  color: var(--primary-ink);
+  line-height: 1.35;
+  margin-bottom: 8px;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.listing-title-link:hover {
+  color: #2563eb;
+}
+
+.listing-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--shade-50);
+  margin-bottom: 16px;
+}
+
+.listing-location-icon {
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+}
+
+.listing-footer {
+  margin-top: auto;
+  padding-top: 16px;
+  border-top: 1px solid var(--hairline-light);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.listing-price {
+  font-family: var(--font-family-display);
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--primary-ink);
+}
+
+.listing-price-cur {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--shade-50);
+  margin-left: 2px;
+}
+
+/* --------------------------------------------------------------------------
+   4. CINEMATIC FOOTER (Dark Narrative Track)
+   -------------------------------------------------------------------------- */
+.site-footer {
+  background-color: var(--canvas-night);
+  color: var(--shade-40);
+  border-top: 1px solid var(--hairline-dark);
+  padding: 80px 32px 48px;
+  font-size: 14px;
+}
+
+.footer-container {
+  max-width: 1360px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 48px;
+  margin-bottom: 64px;
+}
+
+.footer-brand h4 {
+  font-family: var(--font-family-display);
+  font-size: 20px;
+  color: var(--on-dark);
+  margin-bottom: 12px;
+}
+
+.footer-brand p {
+  color: var(--shade-50);
+  max-width: 320px;
+  line-height: 1.6;
+}
+
+.footer-col h5 {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--on-dark);
+  margin-bottom: 16px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.footer-col ul {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.footer-col a {
+  color: var(--shade-40);
+  transition: color var(--transition-fast);
+}
+
+.footer-col a:hover {
+  color: var(--on-dark);
+}
+
+.footer-bottom {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding-top: 32px;
+  border-top: 1px solid var(--hairline-dark);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--shade-60);
+  font-size: 13px;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+/* --------------------------------------------------------------------------
+   5. RESPONSIVE BREAKPOINTS
+   -------------------------------------------------------------------------- */
+@media (max-width: 1024px) {
+  .footer-container {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 768px) {
+  .site-header {
+    padding: 14px 20px;
+  }
+
+  .nav-container {
+    flex-wrap: wrap;
+  }
+
+  .hero-cinematic {
+    padding: 60px 16px 80px;
+  }
+
+  .marketplace-container {
+    padding: 40px 16px 64px;
+  }
+
+  .listing-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 20px;
+  }
+
+  .footer-container {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+}

@@ -1,403 +1,408 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <title>YU Bazaar</title>
-  <style>
-    body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-        text-align: center;
-    }
-    header {
-        background-color: #fff;
-        padding: 10px 20px;
-        border-bottom: 1px solid #ddd;
-        display: grid;
-        grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
-        align-items: center;
-    }
-    header img {
-        height: 40px;
-        justify-self: start;
-    }
-    header h1 {
-        margin: 0;
-        font-size: 24px;
-        justify-self: center;
-    }
-    header div {
-        display: flex;
-        gap: 10px;
-        justify-self: end;
-        align-items: center;
-        flex-wrap: wrap;
-    }
-    header button {
-        background-color: #000;
-        color: #fff;
-        border: none;
-        padding: 8px 16px;
-        cursor: pointer;
-        border-radius: 4px;
-    }
-    header button:hover {
-        background-color: #444;
-    }
-    button:disabled {
-        cursor: wait;
-        opacity: 0.65;
-    }
-    .demo-banner {
-        margin: 16px auto 0;
-        max-width: 720px;
-        padding: 10px 16px;
-        border: 1px solid #d6a700;
-        background-color: #fff8d8;
-        color: #604b00;
-    }
-    .search-bar {
-        margin: 20px 0;
-        position: relative;
-    }
-    .search-bar input {
-        width: 50%;
-        padding: 10px;
-        font-size: 16px;
-        border: 1px solid #ccc;
-        border-radius: 4px;
-    }
-    #suggestions {
-        list-style-type: none;
-        padding: 0;
-        margin: 0;
-        border: 1px solid #ccc;
-        max-width: 50%;
-        display: none;
-        position: absolute;
-        background-color: white;
-        z-index: 1000;
-        left: 25%;
-        text-align: left;
-    }
-    #suggestions li {
-        padding: 8px;
-        cursor: pointer;
-    }
-    #suggestions li:hover {
-        background-color: #f0f0f0;
-    }
-    .item-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-        gap: 20px;
-        padding: 20px;
-    }
-    .item {
-        text-align: center;
-    }
-    .item img {
-        width: 100px;
-        height: auto;
-    }
-    .item h3, .item p {
-        margin: 5px 0;
-    }
-    #addItemButton {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        font-size: 24px;
-        background-color: #000;
-        color: #fff;
-        border: none;
-        border-radius: 50%;
-        width: 50px;
-        height: 50px;
-        cursor: pointer;
-        z-index: 999;
-    }
-    #addItemModal {
-        display: none;
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 1000;
-        background: white;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    }
-    #modalBackground {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 999;
-    }
-    @media (max-width: 600px) {
-        header {
-            display: grid;
-            grid-template-columns: auto 1fr;
-            gap: 8px 12px;
-            text-align: left;
-        }
-        header h1 {
-            font-size: 22px;
-        }
-        header div {
-            grid-column: 1 / -1;
-            width: 100%;
-            align-items: center;
-            justify-content: flex-end;
-            flex-wrap: wrap;
-        }
-        header div span {
-            margin-right: auto;
-        }
-        .search-bar {
-            padding: 0 16px;
-        }
-        .search-bar form {
-            display: flex;
-            gap: 8px;
-        }
-        .search-bar input {
-            width: 100%;
-            min-width: 0;
-        }
-        #suggestions {
-            left: 16px;
-            max-width: calc(100% - 32px);
-        }
-    }
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YU Bazaar | The Verified York University Student Marketplace</title>
+  
+  <!-- Core Design Tokens & Component Styles -->
+  <link rel="stylesheet" th:href="@{/css/theme.css}" href="/css/theme.css">
+  <link rel="stylesheet" th:href="@{/css/components.css}" href="/css/components.css">
+  <link rel="stylesheet" th:href="@{/css/marketplace.css}" href="/css/marketplace.css">
 </head>
 <body>
-<header>
-  <img src="resources/static/images/YUB_Logo.jpg" alt="YU Bazaar Logo" th:src="@{/images/YUB_Logo.jpg}">
-  <h1>YU Bazaar</h1>
-  <div>
-    <span th:text="${userName}"></span> <!-- Display user's name -->
-    <form th:action="@{/logout}" method="post">
-      <button type="submit">Logout</button> <!-- Logout button -->
-    </form>
-    <a href="/profile" style="background-color: #000; color: #fff; padding: 8px 16px; border-radius: 4px; text-decoration: none;">My Profile</a>
+
+<!-- 1. Top Navigation Bar (Dark Narrative Track) -->
+<header class="site-header">
+  <div class="nav-container">
+    <a th:href="@{/}" href="/" class="brand-wrapper">
+      <img th:src="@{/images/YUB_Logo.jpg}" src="/images/YUB_Logo.jpg" alt="YU Bazaar Logo" class="brand-logo">
+      <span class="brand-name">YU Bazaar</span>
+    </a>
+
+    <div class="nav-actions">
+      <!-- Demo Banner Notice if in Demo Mode -->
+      <span class="user-pill-info" th:if="${userName != null}">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+        <span th:text="${userName}">Student</span>
+      </span>
+
+      <a th:href="@{/profile}" href="/profile" class="btn btn-outline-dark btn-sm">My Profile</a>
+
+      <button type="button" class="btn btn-aloe-pill btn-sm" id="navAddItemBtn" th:unless="${isDemo}" onclick="openListingModal()">+ Sell Item</button>
+
+      <form th:action="@{/logout}" method="post" style="display: inline;">
+        <button type="submit" class="btn btn-outline-dark btn-sm">Logout</button>
+      </form>
+    </div>
   </div>
 </header>
 
-<p class="demo-banner" th:if="${isDemo}">Public demo mode is read-only. Listing creation, deletion, and seller inquiries are disabled.</p>
-
-<p th:if="${success}" th:text="${success}" style="color: #18733d;"></p>
-<p th:if="${error}" th:text="${error}" style="color: #b42318;"></p>
-
-<!-- Search Bar -->
-<div class="search-bar">
-  <form th:action="@{/search}" method="get">
-    <input type="text" id="searchBar" name="keyword" placeholder="Search items..." autocomplete="off" />
-    <button type="submit">Search</button>
-  </form>
-  <ul id="suggestions"></ul>
+<!-- Demo Mode Alert Banner -->
+<div class="demo-banner-pill" th:if="${isDemo}" style="margin-top: 16px;">
+  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+  <span>Public demo mode is read-only. Listing creation, deletion, and seller inquiries are disabled.</span>
 </div>
 
-<!-- Item Grid -->
-<div class="item-grid">
-  <div th:if="${items.size() == 0}">
-    <p>No items found for your search.</p>
+<!-- Flash Messages -->
+<div style="max-width: 900px; margin: 16px auto 0; padding: 0 16px;" th:if="${success != null or error != null}">
+  <div class="alert-box alert-success" th:if="${success}" th:text="${success}"></div>
+  <div class="alert-box alert-danger" th:if="${error}" th:text="${error}"></div>
+</div>
+
+<!-- 2. Cinematic Hero Section (Dark Narrative Track) -->
+<section class="hero-cinematic">
+  <div class="hero-content">
+    <div class="hero-badge">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
+      <span>Verified York Student Marketplace</span>
+    </div>
+
+    <h1 class="hero-headline">
+      Commerce for Campus.<br>
+      Buy &amp; sell with <em>verified trust.</em>
+    </h1>
+
+    <!-- Pill Search Capsule -->
+    <div class="hero-search-wrapper">
+      <form th:action="@{/search}" method="get" class="hero-search-bar">
+        <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+        <input type="text" id="searchBar" name="keyword" class="hero-search-input" placeholder="Search textbooks, electronics, dorm decor, course notes..." autocomplete="off">
+        <button type="submit" class="btn btn-primary-pill btn-sm">Search</button>
+      </form>
+      <ul id="suggestions" class="search-dropdown"></ul>
+    </div>
+
+    <!-- Category Filter Pills -->
+    <div class="hero-categories">
+      <a th:href="@{/}" href="/" class="category-chip active">All Items</a>
+      <a th:href="@{/search(keyword='Textbook')}" class="category-chip">Textbooks</a>
+      <a th:href="@{/search(keyword='Tech')}" class="category-chip">Tech &amp; Electronics</a>
+      <a th:href="@{/search(keyword='Dorm')}" class="category-chip">Dorm Living</a>
+      <a th:href="@{/search(keyword='Notes')}" class="category-chip">Course Notes</a>
+      <a th:href="@{/search(keyword='Calculators')}" class="category-chip">Calculators &amp; Lab Gear</a>
+    </div>
+
+    <!-- Quick Action CTA -->
+    <div th:unless="${isDemo}">
+      <button type="button" class="btn btn-outline-dark btn-lg" onclick="openListingModal()">
+        Sell an Item on Campus
+      </button>
+    </div>
   </div>
-  <div th:each="item : ${items}" class="item">
-    <img th:src="@{/media/{filename}(filename=${item.imagePath})}" alt="Item Image" style="width: 100px; height: 100px;">
-    <h3><a th:href="@{/product/{id}(id=${item.id})}" th:text="${item.title}"></a></h3>
-    <p><strong>Price:</strong> $<span th:text="${item.price}"></span></p>
-    <p><strong>Wear:</strong> <span th:text="${item.wear}"></span></p>
-    <p><strong>Location:</strong> <span th:text="${item.location}"></span></p>
+</section>
+
+<!-- 3. Transactional Marketplace Section (Warm Cream Canvas) -->
+<main class="marketplace-container">
+  <div class="section-header">
+    <div>
+      <h2 class="section-title">Campus Listings</h2>
+      <span class="listing-count" th:text="${items.size()} + ' active listings from verified students'">Active Listings</span>
+    </div>
+    <div>
+      <button type="button" class="btn btn-primary-pill btn-sm" th:unless="${isDemo}" onclick="openListingModal()">+ Post New Item</button>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div class="empty-state" th:if="${items == null or items.size() == 0}">
+    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin: 0 auto 16px; color: var(--shade-40);"><circle cx="12" cy="12" r="10"></circle><path d="M8 12h8"></path></svg>
+    <h3 class="empty-state-title">No listings found</h3>
+    <p class="empty-state-desc">Try a different search term or be the first student to post an item in this category!</p>
+    <button type="button" class="btn btn-primary-pill btn-md" th:unless="${isDemo}" onclick="openListingModal()">Post an Item Now</button>
+  </div>
+
+  <!-- Listings Grid -->
+  <div class="listing-grid" th:unless="${items == null or items.size() == 0}">
+    <article class="listing-card" th:each="item : ${items}">
+      <!-- Image Stage -->
+      <div class="listing-media-wrap">
+        <img th:src="@{/media/{filename}(filename=${item.imagePath})}" src="/images/YUB_Logo.jpg" alt="Listing photo" class="listing-img" loading="lazy">
+        <div class="listing-tags">
+          <span class="pill-tag pill-tag-mint" th:if="${item.wear}" th:text="${item.wear}">Condition</span>
+        </div>
+      </div>
+
+      <!-- Card Body -->
+      <div class="listing-body">
+        <a th:href="@{/product/{id}(id=${item.id})}" href="/product/1" class="listing-title-link" th:text="${item.title}">Product Title</a>
+
+        <div class="listing-meta">
+          <svg class="listing-location-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+          <span th:text="${item.location}">York University</span>
+        </div>
+
+        <div class="listing-footer">
+          <div>
+            <span class="listing-price">$<span th:text="${item.price}">0.00</span></span>
+            <span class="listing-price-cur">CAD</span>
+          </div>
+          <a th:href="@{/product/{id}(id=${item.id})}" href="/product/1" class="btn btn-primary-pill btn-sm">View Item</a>
+        </div>
+      </div>
+    </article>
+  </div>
+</main>
+
+<!-- 4. Add Item Modal Dialog -->
+<div id="addItemModalBackdrop" class="modal-backdrop" th:unless="${isDemo}">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <h3 class="modal-title">List an Item on YU Bazaar</h3>
+      <button type="button" class="modal-close-btn" onclick="closeListingModal()">&times;</button>
+    </div>
+
+    <form id="addItemForm" th:action="@{/add-item}" method="post" enctype="multipart/form-data">
+      <input type="hidden" name="submissionToken" th:value="${listingSubmissionToken}">
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label" for="itemTitle">Item Title *</label>
+          <input type="text" id="itemTitle" name="title" class="form-input" placeholder="e.g. EECS 2030 Textbook / TI-84 Calculator" required>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+          <div class="form-group">
+            <label class="form-label" for="itemPrice">Price (CAD) *</label>
+            <input type="number" id="itemPrice" name="price" step="0.01" min="0" class="form-input" placeholder="0.00" required>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label" for="itemWear">Condition *</label>
+            <select id="itemWear" name="wear" class="form-input" required>
+              <option value="">-- Condition --</option>
+              <option value="new">Brand New</option>
+              <option value="used (like new)">Used (Like New)</option>
+              <option value="used">Used (Good)</option>
+              <option value="poor">Fair / Poor</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="itemLocation">Campus Meetup Location *</label>
+          <select id="itemLocation" name="location" class="form-input" required>
+            <option value="">-- Select York Campus Location --</option>
+            <option value="Vari Hall">Vari Hall (Central Meetup)</option>
+            <option value="Scott Library">Scott Library</option>
+            <option value="Student Centre">Student Centre</option>
+            <option value="Bergeron Centre for Engineering Excellence">Bergeron Centre (Lassonde)</option>
+            <option value="Steacie Science and Engineering Library">Steacie Library</option>
+            <option value="York Lanes">York Lanes</option>
+            <option value="Accolade Building East">Accolade Building East</option>
+            <option value="Accolade Building West">Accolade Building West</option>
+            <option value="Archives of Ontario">Archives of Ontario</option>
+            <option value="Atkinson">Atkinson</option>
+            <option value="Bennett Centre for Student Services">Bennett Centre for Student Services</option>
+            <option value="Behavioural Sciences Building">Behavioural Sciences Building</option>
+            <option value="Burton Auditorium">Burton Auditorium</option>
+            <option value="Calumet College">Calumet College</option>
+            <option value="Chemistry Building">Chemistry Building</option>
+            <option value="Computer Methods Building">Computer Methods Building</option>
+            <option value="Central Square">Central Square</option>
+            <option value="Central Utilities Building">Central Utilities Building</option>
+            <option value="Centre for Film and Theatre">Centre for Film and Theatre</option>
+            <option value="Curtis Lecture Halls">Curtis Lecture Halls</option>
+            <option value="Dahdaleh Building">Dahdaleh Building</option>
+            <option value="Executive Learning Centre">Executive Learning Centre</option>
+            <option value="Farquharson Life Sciences">Farquharson Life Sciences</option>
+            <option value="Founders College">Founders College</option>
+            <option value="Founders Tennis Court">Founders Tennis Court</option>
+            <option value="Frost Library (Glendon campus)">Frost Library (Glendon campus)</option>
+            <option value="Glendon Hall (Glendon campus)">Glendon Hall (Glendon campus)</option>
+            <option value="Hart House (Osgoode Hall Law School)">Hart House (Osgoode Hall Law School)</option>
+            <option value="Health, Nursing and Environmental Studies Building">Health &amp; Nursing Building</option>
+            <option value="Hilliard Residence (Glendon campus)">Hilliard Residence (Glendon)</option>
+            <option value="Ignat Kaneff Building">Ignat Kaneff Building</option>
+            <option value="Kaneff Tower">Kaneff Tower</option>
+            <option value="Kinsmen Building">Kinsmen Building</option>
+            <option value="Lassonde Building">Lassonde Building</option>
+            <option value="LA&PS @ IBM Markham">LA&amp;PS @ IBM Markham</option>
+            <option value="Life Sciences Building">Life Sciences Building</option>
+            <option value="Lorna R. Marsden Honours Court & Welcome Centre">Lorna R. Marsden Welcome Centre</option>
+            <option value="Lumbers Building">Lumbers Building</option>
+            <option value="McLaughlin College">McLaughlin College</option>
+            <option value="Norman Bethune College">Norman Bethune College</option>
+            <option value="Petrie Science and Engineering Building">Petrie Science &amp; Engineering</option>
+            <option value="Physical Resources Building">Physical Resources Building</option>
+            <option value="Rob and Cheryl McEwen Graduate Study Building">McEwen Graduate Building</option>
+            <option value="Ross Building - North wing">Ross Building - North wing</option>
+            <option value="Ross Building - South wing">Ross Building - South wing</option>
+            <option value="Seneca @ York">Seneca @ York</option>
+            <option value="Seymour Schulich Building">Schulich School of Business</option>
+            <option value="Sheridan College - Trafalgar Campus">Sheridan College</option>
+            <option value="Sherman Health Science Research Centre">Sherman Health Science</option>
+            <option value="Stedman Lecture Halls">Stedman Lecture Halls</option>
+            <option value="Stong College">Stong College</option>
+            <option value="Tait McKenzie Centre">Tait McKenzie Centre</option>
+            <option value="Tait Tennis Courts">Tait Tennis Courts</option>
+            <option value="Technology and Enhanced Learning Building">TEL Building</option>
+            <option value="Tennis Canada">Tennis Canada</option>
+            <option value="The Joan & Martin Goldfarb Centre for Fine Arts">Goldfarb Centre for Fine Arts</option>
+            <option value="Track and Field Centre">Track and Field Centre</option>
+            <option value="Vanier College">Vanier College</option>
+            <option value="West Office Building">West Office Building</option>
+            <option value="William Small Centre">William Small Centre</option>
+            <option value="Winters College">Winters College</option>
+            <option value="York Hall (Glendon campus)">York Hall (Glendon campus)</option>
+            <option value="Off Campus">Off Campus Meetup</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="itemDescription">Description (Optional)</label>
+          <textarea id="itemDescription" name="description" class="form-input form-textarea" placeholder="Detail condition, included accessories, or edition..."></textarea>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label" for="itemImage">Product Photo *</label>
+          <input type="file" id="itemImage" name="image" accept="image/*" class="form-input" required>
+          <span class="form-hint">PNG, JPG, or WEBP. Uploaded securely to Cloudflare R2 storage.</span>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-light btn-md" onclick="closeListingModal()">Cancel</button>
+        <button id="addItemSubmit" type="submit" class="btn btn-primary-pill btn-md">Publish Listing</button>
+      </div>
+    </form>
   </div>
 </div>
 
-<!-- Add Item Button -->
-<button id="addItemButton" th:unless="${isDemo}" aria-label="Add listing">+</button>
+<!-- 5. Cinematic Footer (Dark Narrative Track) -->
+<footer class="site-footer">
+  <div class="footer-container">
+    <div class="footer-brand">
+      <h4>YU Bazaar</h4>
+      <p>The student-to-student marketplace exclusively for verified York University community members. Safe, zero-spam campus commerce.</p>
+    </div>
 
-<!-- Add Item Modal -->
-<div id="addItemModal" th:unless="${isDemo}">
-  <div style="text-align: right;">
-    <button id="closeModal" style="background: none; border: none; font-size: 18px; cursor: pointer;">&times;</button>
+    <div class="footer-col">
+      <h5>Campus Safety</h5>
+      <ul>
+        <li><a href="#vari-hall">Vari Hall Designated Safe Zone</a></li>
+        <li><a href="#safety">Campus Meetup Tips</a></li>
+        <li><a href="#security">York Security Services</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <h5>Student Hub</h5>
+      <ul>
+        <li><a th:href="@{/profile}">My Listings</a></li>
+        <li><a th:href="@{/search(keyword='Textbook')}">Course Textbooks</a></li>
+        <li><a th:href="@{/search(keyword='Tech')}">Laptops &amp; Tech</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <h5>Trust &amp; Legal</h5>
+      <ul>
+        <li><a href="#verification">York Student Email Verification</a></li>
+        <li><a href="#terms">Terms of Service</a></li>
+        <li><a href="#privacy">Privacy Policy</a></li>
+      </ul>
+    </div>
   </div>
-  <form id="addItemForm" th:action="@{/add-item}" method="post" enctype="multipart/form-data">
-    <input type="hidden" name="submissionToken" th:value="${listingSubmissionToken}">
-    <label>Title:</label>
-    <input type="text" name="title" required><br>
-    <label>Price:</label>
-    <input type="number" name="price" step="0.01" required><br>
-    <label>Wear:</label>
-    <select name="wear" required>
-      <option value="">-- Select Wear Condition --</option>
-      <option value="new">New</option>
-      <option value="used (like new)">Used (Like New)</option>
-      <option value="used">Used</option>
-      <option value="poor">Poor</option>
-    </select><br>
-    <label>Location:</label>
-    <select name="location" required>
-      <option value="">-- Select Location --</option>
-      <option value="Accolade Building East">Accolade Building East</option>
-      <option value="Accolade Building West">Accolade Building West</option>
-      <option value="Archives of Ontario">Archives of Ontario</option>
-      <option value="Atkinson">Atkinson</option>
-      <option value="Norman Bethune College">Norman Bethune College</option>
-      <option value="Bennett Centre for Student Services">Bennett Centre for Student Services</option>
-      <option value="Bergeron Centre for Engineering Excellence">Bergeron Centre for Engineering Excellence</option>
-      <option value="Behavioural Sciences Building">Behavioural Sciences Building</option>
-      <option value="Burton Auditorium">Burton Auditorium</option>
-      <option value="Chemistry Building">Chemistry Building</option>
-      <option value="Calumet College">Calumet College</option>
-      <option value="The Joan & Martin Goldfarb Centre for Fine Arts">The Joan & Martin Goldfarb Centre for Fine Arts</option>
-      <option value="Centre for Film and Theatre">Centre for Film and Theatre</option>
-      <option value="Curtis Lecture Halls">Curtis Lecture Halls</option>
-      <option value="Computer Methods Building">Computer Methods Building</option>
-      <option value="Central Square">Central Square</option>
-      <option value="Central Utilities Building">Central Utilities Building</option>
-      <option value="Dahdaleh Building">Dahdaleh Building</option>
-      <option value="Executive Learning Centre">Executive Learning Centre</option>
-      <option value="Founders College">Founders College</option>
-      <option value="Frost Library (Glendon campus)">Frost Library (Glendon campus)</option>
-      <option value="Farquharson Life Sciences">Farquharson Life Sciences</option>
-      <option value="Founders Tennis Court">Founders Tennis Court</option>
-      <option value="Glendon Hall (Glendon campus)">Glendon Hall (Glendon campus)</option>
-      <option value="Lorna R. Marsden Honours Court & Welcome Centre">Lorna R. Marsden Honours Court & Welcome Centre</option>
-      <option value="Hart House (Osgoode Hall Law School)">Hart House (Osgoode Hall Law School)</option>
-      <option value="Health, Nursing and Environmental Studies Building">Health, Nursing and Environmental Studies Building</option>
-      <option value="Hilliard Residence (Glendon campus)">Hilliard Residence (Glendon campus)</option>
-      <option value="Ignat Kaneff Building">Ignat Kaneff Building</option>
-      <option value="Kinsmen Building">Kinsmen Building</option>
-      <option value="Kaneff Tower">Kaneff Tower</option>
-      <option value="Lassonde Building">Lassonde Building</option>
-      <option value="LA&PS @ IBM Markham">LA&PS @ IBM Markham</option>
-      <option value="Life Sciences Building">Life Sciences Building</option>
-      <option value="Lumbers Building">Lumbers Building</option>
-      <option value="Rob and Cheryl McEwen Graduate Study & Research Building">Rob and Cheryl McEwen Graduate Study & Research Building</option>
-      <option value="McLaughlin College">McLaughlin College</option>
-      <option value="Off Campus">Off Campus</option>
-      <option value="Physical Resources Building">Physical Resources Building</option>
-      <option value="Petrie Science and Engineering Building / Petrie Observatory">Petrie Science and Engineering Building / Petrie Observatory</option>
-      <option value="Ross Building - North wing">Ross Building - North wing</option>
-      <option value="Ross Building - South wing">Ross Building - South wing</option>
-      <option value="Seneca @ York">Seneca @ York</option>
-      <option value="Stong College">Stong College</option>
-      <option value="Scott Library">Scott Library</option>
-      <option value="Sherman Health Science Research Centre">Sherman Health Science Research Centre</option>
-      <option value="Stedman Lecture Halls">Stedman Lecture Halls</option>
-      <option value="Seymour Schulich Building">Seymour Schulich Building</option>
-      <option value="Sheridan College - Trafalgar Campus">Sheridan College - Trafalgar Campus</option>
-      <option value="Student Centre">Student Centre</option>
-      <option value="Steacie Science and Engineering Library">Steacie Science and Engineering Library</option>
-      <option value="Tennis Canada">Tennis Canada</option>
-      <option value="Technology and Enhanced Learning Building">Technology and Enhanced Learning Building</option>
-      <option value="Track and Field Centre">Track and Field Centre</option>
-      <option value="Tait McKenzie Centre">Tait McKenzie Centre</option>
-      <option value="Tait Tennis Courts">Tait Tennis Courts</option>
-      <option value="Vanier College">Vanier College</option>
-      <option value="Vari Hall">Vari Hall</option>
-      <option value="Winters College">Winters College</option>
-      <option value="West Office Building">West Office Building</option>
-      <option value="William Small Centre">William Small Centre</option>
-      <option value="York Hall (Glendon campus)">York Hall (Glendon campus)</option>
-      <option value="York Lanes">York Lanes</option>
-    </select><br>
-    <label>Description:</label>
-    <textarea name="description" rows="4"></textarea><br>
-    <label>Image:</label>
-    <input type="file" name="image" accept="image/*" required><br>
-    <button id="addItemSubmit" type="submit">Add Item</button>
-  </form>
-</div>
 
-<div id="modalBackground"></div>
+  <div class="footer-bottom">
+    <div>&copy; 2026 YU Bazaar. Built for York University Students.</div>
+    <div>Strictly restricted to current @my.yorku.ca account holders.</div>
+  </div>
+</footer>
 
+<!-- Interactive Scripts -->
 <script>
+  // Autocomplete Suggestions
   const searchBar = document.getElementById("searchBar");
   const suggestionsList = document.getElementById("suggestions");
 
-  searchBar.addEventListener("input", function () {
-      const keyword = searchBar.value;
+  if (searchBar && suggestionsList) {
+    searchBar.addEventListener("input", function () {
+      const keyword = searchBar.value.trim();
 
-      if (keyword.length > 1) { // Trigger suggestions after 2 characters
-          fetch(`/search-suggestions?keyword=${keyword}`)
-              .then(response => response.json())
-              .then(data => {
-                  // Clear existing suggestions
-                  suggestionsList.innerHTML = "";
+      if (keyword.length > 1) {
+        fetch(`/search-suggestions?keyword=${encodeURIComponent(keyword)}`)
+          .then(response => response.json())
+          .then(data => {
+            suggestionsList.innerHTML = "";
 
-                  if (data.length > 0) {
-                      suggestionsList.style.display = "block";
+            if (data && data.length > 0) {
+              suggestionsList.style.display = "block";
 
-                      // Add suggestions to the list
-                      data.forEach(suggestion => {
-                          const listItem = document.createElement("li");
-                          listItem.textContent = suggestion;
+              data.forEach(suggestion => {
+                const listItem = document.createElement("li");
+                listItem.textContent = suggestion;
 
-                          // Fill the search bar when a suggestion is clicked
-                          listItem.addEventListener("click", () => {
-                              searchBar.value = suggestion;
-                              suggestionsList.style.display = "none";
-                          });
+                listItem.addEventListener("click", () => {
+                  searchBar.value = suggestion;
+                  suggestionsList.style.display = "none";
+                  searchBar.form.submit();
+                });
 
-                          suggestionsList.appendChild(listItem);
-                      });
-                  } else {
-                      suggestionsList.style.display = "none";
-                  }
+                suggestionsList.appendChild(listItem);
               });
+            } else {
+              suggestionsList.style.display = "none";
+            }
+          })
+          .catch(() => {
+            suggestionsList.style.display = "none";
+          });
       } else {
-          suggestionsList.style.display = "none";
+        suggestionsList.style.display = "none";
       }
-  });
+    });
 
-  // Hide the suggestions if the user clicks outside
-  document.addEventListener("click", function (e) {
+    document.addEventListener("click", function (e) {
       if (!suggestionsList.contains(e.target) && e.target !== searchBar) {
-          suggestionsList.style.display = "none";
+        suggestionsList.style.display = "none";
       }
-  });
+    });
+  }
 
-  // Modal functionality
-  const addItemButton = document.getElementById("addItemButton");
-  const addItemModal = document.getElementById("addItemModal");
-  const closeModal = document.getElementById("closeModal");
-  const modalBackground = document.getElementById("modalBackground");
+  // Modal Dialog Functions
+  const modalBackdrop = document.getElementById("addItemModalBackdrop");
   const addItemForm = document.getElementById("addItemForm");
 
-  if (addItemButton) {
-      addItemButton.addEventListener("click", function () {
-          addItemModal.style.display = "block";
-          modalBackground.style.display = "block";
-      });
+  function openListingModal() {
+    if (modalBackdrop) {
+      modalBackdrop.classList.add("active");
+      document.body.style.overflow = "hidden";
+    }
+  }
 
-      closeModal.addEventListener("click", function () {
-          addItemModal.style.display = "none";
-          modalBackground.style.display = "none";
-      });
+  function closeListingModal() {
+    if (modalBackdrop) {
+      modalBackdrop.classList.remove("active");
+      document.body.style.overflow = "";
+    }
+  }
 
-      modalBackground.addEventListener("click", function () {
-          addItemModal.style.display = "none";
-          modalBackground.style.display = "none";
-      });
+  if (modalBackdrop) {
+    modalBackdrop.addEventListener("click", function (e) {
+      if (e.target === modalBackdrop) {
+        closeListingModal();
+      }
+    });
+  }
 
-      addItemForm.addEventListener("submit", function (event) {
-          if (addItemForm.dataset.submitting === "true") {
-              event.preventDefault();
-              return;
-          }
+  if (addItemForm) {
+    addItemForm.addEventListener("submit", function (event) {
+      if (addItemForm.dataset.submitting === "true") {
+        event.preventDefault();
+        return;
+      }
 
-          addItemForm.dataset.submitting = "true";
-          const submitButton = document.getElementById("addItemSubmit");
-          submitButton.disabled = true;
-          submitButton.textContent = "Adding...";
-      });
+      addItemForm.dataset.submitting = "true";
+      const submitButton = document.getElementById("addItemSubmit");
+      if (submitButton) {
+        submitButton.disabled = true;
+        submitButton.textContent = "Publishing Listing...";
+      }
+    });
   }
 </script>
+
 </body>
 </html>
