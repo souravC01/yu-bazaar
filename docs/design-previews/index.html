@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>YU Bazaar - Visual Redesign Showcase</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #0d0d0f;
+      --card-bg: #16171d;
+      --border: #232530;
+      --text: #f0f0f5;
+      --text-muted: #8e90a0;
+      --accent: #c1fbd4;
+      --accent-ink: #000000;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      padding: 40px 24px 80px;
+      line-height: 1.6;
+    }
+    .header {
+      max-width: 1200px;
+      margin: 0 auto 40px;
+      text-align: center;
+    }
+    .badge {
+      display: inline-block;
+      background: var(--accent);
+      color: var(--accent-ink);
+      padding: 4px 14px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    h1 {
+      font-size: 38px;
+      font-weight: 330;
+      letter-spacing: -0.5px;
+      margin-bottom: 12px;
+    }
+    p.lead {
+      color: var(--text-muted);
+      font-size: 17px;
+      max-width: 680px;
+      margin: 0 auto;
+    }
+    .screen-grid {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      gap: 60px;
+    }
+    .screen-card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    }
+    .screen-card-header {
+      padding: 24px 32px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .screen-card-title {
+      font-size: 20px;
+      font-weight: 600;
+    }
+    .screen-card-desc {
+      color: var(--text-muted);
+      font-size: 14px;
+      margin-top: 4px;
+    }
+    .screen-img-container {
+      background: #000000;
+      padding: 24px;
+      text-align: center;
+    }
+    .screen-img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+      display: block;
+      margin: 0 auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <span class="badge">Stitch Design Showcase</span>
+    <h1>YU Bazaar Visual Redesign</h1>
+    <p class="lead">Exploring the dual-track Shopify-inspired aesthetic: Cinematic Night Canvas for discovery & Warm Cream Transactional surfaces for marketplace listings and verified student interactions.</p>
+  </div>
+
+  <div class="screen-grid">
+    <!-- Screen 1 -->
+    <div class="screen-card" id="home-screen">
+      <div class="screen-card-header">
+        <div>
+          <div class="screen-card-title">1. Marketplace Home Page</div>
+          <div class="screen-card-desc">Cinematic Dark Hero (96px thin typography + campus background) & Warm Cream Listing Grid with Level 3 halo shadows</div>
+        </div>
+      </div>
+      <div class="screen-img-container">
+        <img class="screen-img" src="https://lh3.googleusercontent.com/aida/AP1WRLs-9NyUJHd9mJd2gpQ_0ThJ4TswYpCxWp4PK4R4Ga1MAVRSiNr-SEBavr6IHGpEglGYhusdo1029x9QtqznoPXSieb88SgEqsUv4bmZXXqT0DdGLGdm3_D1QjJgNbhsdl2ixIVo2qnNrVTAZduTQin-4nmC_6-MsOPX9qPk0isweNrCjb66Th3d6jL0aSHXn4l5EYTQmh12mL70StXpOhwQ26ukXCA257AUyYjg0bx4ju3EY2eunljmVwxb" alt="Marketplace Home Screen">
+      </div>
+    </div>
+
+    <!-- Screen 2 -->
+    <div class="screen-card" id="product-screen">
+      <div class="screen-card-header">
+        <div>
+          <div class="screen-card-title">2. Product Details Page</div>
+          <div class="screen-card-desc">High-resolution gallery, sticky verified student seller panel with response metrics, quick-inquiry suggestion pills, and campus safety tips</div>
+        </div>
+      </div>
+      <div class="screen-img-container">
+        <img class="screen-img" src="https://lh3.googleusercontent.com/aida/AP1WRLsif5KJg84DlhTZuxjcEGjMPAr0yUjIKTO_aid6KWroLWpoO54obGzw-POnt2MEiY6MQdOaILfvTS0QZdY1NAPMG1B9RXHIh1_bH_eV29Qzb9KdqyKfM2OqbwBOgE112nDTvX0XDwjsTdvsWdPvNXYed_oUnhdajOn4K7YoBlNL5vmW6h_9O1Y1YwwqG8KWw6FDp-a259a1DppKExyW0HRrCkgTQIOZpP4HpBycZCmOplfxMjsiFdDpY5k" alt="Product Details Screen">
+      </div>
+    </div>
+
+    <!-- Screen 3 -->
+    <div class="screen-card" id="auth-screen">
+      <div class="screen-card-header">
+        <div>
+          <div class="screen-card-title">3. Student Registration & OTP Verification Flow</div>
+          <div class="screen-card-desc">Cream canvas with elevated paper-halo card, 3-step indicator, 6-digit OTP code inputs, and mint aloe trust banner for @my.yorku.ca</div>
+        </div>
+      </div>
+      <div class="screen-img-container">
+        <img class="screen-img" src="https://lh3.googleusercontent.com/aida/AP1WRLub98dhrW6aKSt5_bNs8vCKbyt1yfkQue51gKzV8O3VT8uhhzemhy-vloS6K_cwYu2ow5oY29GPT7xEu3Br9Pn4QpFpMISL7CZzm79kLFh9V7cYgzLNeQhgosU4fDhqEQyFTQh95uUUZmISpYkAzrQhkC4BrzH0ZRqkQUqPQkohO3rZYWCQqJzn-HIxTB4P2XDeyoQTetwmZkIOkTcrEkwH7-c7VhgSyV8rXn3cycFBghyY2fZylRq5Ho8" alt="Student Verification Screen">
+      </div>
+    </div>
+  </div>
+</body>
+</html>
