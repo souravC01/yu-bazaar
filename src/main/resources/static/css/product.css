@@ -1,0 +1,254 @@
+/* ==========================================================================
+   YU BAZAAR - PRODUCT DETAILS STYLES
+   Editorial 60/40 Commerce Gallery + Sticky Verified Student Inquiry Panel
+   ========================================================================== */
+
+.product-page-wrapper {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 32px 24px 80px;
+}
+
+.product-top-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--spacing-xl);
+}
+
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 550;
+  color: var(--shade-60);
+  padding: 8px 16px;
+  border-radius: var(--radius-pill);
+  background: var(--canvas-light);
+  border: 1px solid var(--hairline-light);
+  box-shadow: var(--shadow-level-3);
+  transition: all var(--transition-fast);
+}
+
+.back-link:hover {
+  color: var(--primary-ink);
+  border-color: var(--shade-40);
+  transform: translateX(-2px);
+}
+
+/* 60/40 Two-Column Layout */
+.product-grid-layout {
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  gap: 48px;
+  align-items: start;
+  margin-bottom: 48px;
+}
+
+/* Left Column: Media Stage & Details */
+.product-gallery-stage {
+  position: relative;
+  width: 100%;
+  border-radius: var(--radius-xl);
+  background-color: var(--canvas-light);
+  border: 1px solid var(--hairline-light);
+  box-shadow: var(--shadow-level-3);
+  overflow: hidden;
+  margin-bottom: var(--spacing-xl);
+}
+
+.product-main-image {
+  width: 100%;
+  height: 480px;
+  object-fit: contain;
+  background-color: #fafaf8;
+  display: block;
+}
+
+.product-details-card {
+  background-color: var(--canvas-light);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--hairline-light);
+  box-shadow: var(--shadow-level-3);
+  padding: 32px;
+}
+
+.section-label {
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--shade-50);
+  margin-bottom: 12px;
+}
+
+.product-description-text {
+  font-size: 16px;
+  line-height: 1.65;
+  color: var(--shade-70);
+  white-space: pre-line;
+  margin-bottom: 24px;
+}
+
+.product-spec-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 0;
+  border-top: 1px solid var(--hairline-light);
+  font-size: 14.5px;
+}
+
+.spec-key {
+  color: var(--shade-50);
+  font-weight: 500;
+}
+
+.spec-val {
+  color: var(--primary-ink);
+  font-weight: 600;
+}
+
+/* Right Column: Sticky Seller & Action Card */
+.sticky-sidebar {
+  position: sticky;
+  top: 96px;
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xl);
+}
+
+.purchase-card {
+  background-color: var(--canvas-light);
+  border-radius: var(--radius-xl);
+  border: 1px solid var(--hairline-light);
+  box-shadow: var(--shadow-level-3);
+  padding: 32px;
+}
+
+.product-title {
+  font-family: var(--font-family-display);
+  font-size: 32px;
+  font-weight: 550;
+  color: var(--primary-ink);
+  line-height: 1.2;
+  letter-spacing: -0.3px;
+  margin-bottom: 16px;
+}
+
+.product-price-wrapper {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-bottom: 24px;
+  padding-bottom: 20px;
+  border-bottom: 1px solid var(--hairline-light);
+}
+
+.price-display {
+  font-family: var(--font-family-display);
+  font-size: 42px;
+  font-weight: 700;
+  color: var(--primary-ink);
+  letter-spacing: -0.5px;
+}
+
+.price-currency {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--shade-50);
+}
+
+/* Verified Student Seller Profile */
+.seller-profile-card {
+  background-color: var(--shade-10);
+  border: 1px solid var(--hairline-light);
+  border-radius: var(--radius-lg);
+  padding: 16px 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.seller-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: var(--radius-pill);
+  background-color: var(--primary-ink);
+  color: var(--on-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.seller-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.seller-name {
+  font-weight: 600;
+  font-size: 15px;
+  color: var(--primary-ink);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.seller-subtext {
+  font-size: 13px;
+  color: var(--shade-50);
+}
+
+/* Quick Inquiry Chips */
+.quick-replies {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.quick-reply-chip {
+  padding: 6px 14px;
+  border-radius: var(--radius-pill);
+  background-color: var(--shade-20);
+  border: 1px solid var(--hairline-light);
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--shade-70);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.quick-reply-chip:hover {
+  background-color: var(--primary-ink);
+  color: var(--on-primary);
+  border-color: var(--primary-ink);
+}
+
+/* Safety Tip Band */
+.safety-tip-container {
+  margin-top: 16px;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .product-grid-layout {
+    grid-template-columns: 1fr;
+    gap: 32px;
+  }
+
+  .sticky-sidebar {
+    position: static;
+  }
+
+  .product-main-image {
+    height: 360px;
+  }
+}

@@ -1,199 +1,172 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-  <title>Product Details - YU Bazaar</title>
-  <style>
-    /* General Body Styles */
-    body {
-        font-family: Arial, sans-serif;
-        margin: 0;
-        padding: 0;
-        background-color: #f9f9f9;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        height: 100vh;
-    }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title th:text="${item.title} + ' | YU Bazaar'">Product Details - YU Bazaar</title>
 
-    /* Main Container */
-    .product-container {
-        background-color: #fff;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        width: 400px;
-    }
-
-    /* Product Image */
-    .product-image img {
-        width: 100%;
-        height: auto;
-        border-radius: 5px;
-    }
-
-    /* Product Info */
-    .product-info {
-        text-align: center;
-        margin-top: 20px;
-    }
-
-    .product-info h1 {
-        font-size: 24px;
-        margin-bottom: 10px;
-    }
-
-    .product-info p {
-        margin: 5px 0;
-        font-size: 14px;
-    }
-
-    .product-info strong {
-        font-weight: bold;
-    }
-
-    /* Contact Button */
-    .contact-button {
-        display: block;
-        width: 100%;
-        text-align: center;
-        margin-top: 20px;
-        background-color: #000;
-        color: #fff;
-        border: none;
-        padding: 10px;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 16px;
-    }
-
-    .contact-button:hover {
-        background-color: #444;
-    }
-
-    /* Inquiry Modal */
-    #inquiryModal {
-        display: none;
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        z-index: 1000;
-        background: white;
-        padding: 20px;
-        border-radius: 10px;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-        width: 400px;
-    }
-
-    #modalBackground {
-        display: none;
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: rgba(0, 0, 0, 0.5);
-        z-index: 999;
-    }
-
-    #inquiryModal label,
-    #inquiryModal textarea,
-    #inquiryModal input {
-        display: block;
-        width: 100%;
-        margin-bottom: 10px;
-        padding: 8px;
-        font-size: 14px;
-    }
-
-    #inquiryModal button {
-        width: 100%;
-        background-color: #000;
-        color: #fff;
-        border: none;
-        padding: 10px;
-        border-radius: 4px;
-        cursor: pointer;
-    }
-
-    #inquiryModal button:hover {
-        background-color: #444;
-    }
-  </style>
+  <!-- Core Design Tokens & Component Styles -->
+  <link rel="stylesheet" th:href="@{/css/theme.css}" href="/css/theme.css">
+  <link rel="stylesheet" th:href="@{/css/components.css}" href="/css/components.css">
+  <link rel="stylesheet" th:href="@{/css/product.css}" href="/css/product.css">
 </head>
-<body>
-<div class="product-container">
-  <!-- Home Button -->
- <button onclick="location.href='/home'" style="background-color: #000; color: #fff; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 16px; margin-bottom: 10px;">
-    Home
-</button>
+<body style="background-color: var(--canvas-cream);">
 
+<div class="product-page-wrapper">
+  <!-- Top Navigation & Return Bar -->
+  <div class="product-top-bar">
+    <a th:href="@{/}" href="/" class="back-link">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+      <span>Back to Marketplace</span>
+    </a>
 
-  <!-- Product Image -->
-  <div class="product-image">
-    <img th:src="@{/media/{imageName}(imageName=${item.imagePath})}" alt="Product Image" class="product-image">
+    <a th:href="@{/}" href="/" style="display: flex; align-items: center; gap: 8px; text-decoration: none;">
+      <img th:src="@{/images/YUB_Logo.jpg}" src="/images/YUB_Logo.jpg" alt="YU Bazaar" style="height: 32px; border-radius: 6px;">
+      <span style="font-family: var(--font-family-display); font-weight: 600; font-size: 17px; color: var(--primary-ink);">YU Bazaar</span>
+    </a>
   </div>
 
-
-  <!-- Product Info -->
-  <div class="product-info">
-    <h1 th:text="${item.title}">Product Title</h1>
-    <p><strong>Price:</strong> <span th:text="'CA$' + ${item.price}">CA$0.99</span></p>
-    <p><strong>Condition:</strong> <span th:text="${item.wear}">Used (like new)</span></p>
-    <p><strong>Description:</strong> <span th:text="${item.description}">A great product in excellent condition.</span></p>
-    <p><strong>Location:</strong> <span th:text="${item.location}">York Village</span></p>
+  <!-- Flash Messages -->
+  <div th:if="${success != null or error != null or isDemo}" style="margin-bottom: 24px;">
+    <div class="alert-box alert-success" th:if="${success}" th:text="${success}"></div>
+    <div class="alert-box alert-danger" th:if="${error}" th:text="${error}"></div>
+    <div class="demo-banner-pill" th:if="${isDemo}">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+      <span>Public demo mode is read-only. Seller contact and listing modifications are disabled.</span>
+    </div>
   </div>
 
-  <p th:if="${success}" th:text="${success}" style="color: #18733d; text-align: center;"></p>
-  <p th:if="${error}" th:text="${error}" style="color: #b42318; text-align: center;"></p>
-  <p th:if="${isDemo}" style="color: #604b00; text-align: center;">Seller contact and listing changes are disabled in public demo mode.</p>
+  <!-- Asymmetric 60/40 Commerce Grid -->
+  <div class="product-grid-layout">
+    <!-- Left Column: Gallery & Story Details -->
+    <div class="gallery-column">
+      <!-- Media Display Stage -->
+      <div class="product-gallery-stage">
+        <img th:src="@{/media/{imageName}(imageName=${item.imagePath})}" src="/images/YUB_Logo.jpg" th:alt="${item.title}" class="product-main-image">
+      </div>
 
-  <!-- Contact Button -->
-  <button class="contact-button" id="contactDetailsButton" th:if="${!isOwner and !isDemo}">Contact Seller</button>
-  <form th:if="${isOwner and !isDemo}" th:action="@{/delete-item}" method="post">
-    <input type="hidden" name="id" th:value="${item.id}">
-    <button type="submit" class="contact-button">Delete Listing</button>
-  </form>
+      <!-- Description & Specs Card -->
+      <div class="product-details-card">
+        <div class="section-label">Item Information</div>
+        <p class="product-description-text" th:text="${item.description != null and !item.description.isEmpty() ? item.description : 'No additional description provided by the seller.'}">
+          Item description goes here.
+        </p>
+
+        <div class="section-label" style="margin-top: 24px;">Listing Specifications</div>
+        <div class="product-spec-row">
+          <span class="spec-key">Condition</span>
+          <span class="pill-tag pill-tag-mint" th:text="${item.wear}">Used (like new)</span>
+        </div>
+        <div class="product-spec-row">
+          <span class="spec-key">Meetup Location</span>
+          <span class="spec-val" style="display: flex; align-items: center; gap: 6px;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+            <span th:text="${item.location}">Vari Hall</span>
+          </span>
+        </div>
+        <div class="product-spec-row">
+          <span class="spec-key">Security Status</span>
+          <span class="badge-verified">
+            <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
+            Verified York Student
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Column: Sticky Seller & Action Card -->
+    <aside class="sticky-sidebar">
+      <div class="purchase-card">
+        <div style="margin-bottom: 8px;">
+          <span class="pill-tag pill-tag-mint" th:if="${item.wear}" th:text="${item.wear}">Condition</span>
+        </div>
+
+        <h1 class="product-title" th:text="${item.title}">Product Title</h1>
+
+        <div class="product-price-wrapper">
+          <span class="price-display">$<span th:text="${item.price}">0.00</span></span>
+          <span class="price-currency">CAD</span>
+        </div>
+
+        <!-- Verified Seller Profile -->
+        <div class="seller-profile-card">
+          <div class="seller-avatar">YU</div>
+          <div class="seller-info">
+            <div class="seller-name">
+              <span>York University Student</span>
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="#16a34a"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+            </div>
+            <span class="seller-subtext">Verified @my.yorku.ca student</span>
+          </div>
+        </div>
+
+        <!-- Direct Inquiry Form (If Not Owner & Not Demo) -->
+        <div th:if="${!isOwner and !isDemo}">
+          <div class="section-label">Quick Inquiry Suggestions</div>
+          <div class="quick-replies">
+            <button type="button" class="quick-reply-chip" onclick="setInquiryText('Hi! Is this still available?')">Is this still available?</button>
+            <button type="button" class="quick-reply-chip" onclick="setInquiryText('Can we meet at Scott Library?')">Can meet at Scott Library?</button>
+            <button type="button" class="quick-reply-chip" onclick="setInquiryText('Hi, I can meet at Vari Hall this afternoon.')">Can meet today at Vari Hall?</button>
+          </div>
+
+          <form th:action="@{/send-inquiry}" method="post" id="sellerInquiryForm">
+            <input type="hidden" name="itemId" th:value="${item.id}">
+            
+            <div class="form-group">
+              <label class="form-label" for="inquiryMessage">Message to Seller *</label>
+              <textarea id="inquiryMessage" name="message" class="form-input form-textarea" placeholder="Introduce yourself and propose a campus meetup time..." required></textarea>
+            </div>
+
+            <button type="submit" id="sendInquiryBtn" class="btn btn-primary-pill btn-full btn-lg">
+              Send Inquiry to Seller
+            </button>
+          </form>
+        </div>
+
+        <!-- Owner Controls (If logged in as owner) -->
+        <div th:if="${isOwner and !isDemo}">
+          <div style="background-color: var(--shade-10); border: 1px solid var(--hairline-light); border-radius: var(--radius-lg); padding: 16px; margin-top: 16px;">
+            <p style="font-size: 14px; font-weight: 600; margin-bottom: 12px; color: var(--primary-ink);">Listing Management</p>
+            <p style="font-size: 13px; color: var(--shade-50); margin-bottom: 16px;">You are the verified owner of this campus listing.</p>
+            <form th:action="@{/delete-item}" method="post" onsubmit="return confirm('Are you sure you want to permanently delete this listing?');">
+              <input type="hidden" name="id" th:value="${item.id}">
+              <button type="submit" class="btn btn-danger-pill btn-full">Delete Listing</button>
+            </form>
+          </div>
+        </div>
+      </div>
+
+      <!-- Campus Meetup Safety Band -->
+      <div class="card-pistachio-band">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="flex-shrink: 0;"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+        <div style="font-size: 13.5px; line-height: 1.45;">
+          <strong>Campus Safety Tip:</strong> Always arrange exchanges in high-traffic campus zones like <em>Vari Hall, Scott Library, or York Lanes</em> during daylight hours.
+        </div>
+      </div>
+    </aside>
+  </div>
 </div>
-
-<!-- Inquiry Modal -->
-<div id="inquiryModal">
-  <div style="text-align: right;">
-    <button id="closeInquiryModal" style="background: none; border: none; font-size: 18px; cursor: pointer;">&times;</button>
-  </div>
-  <h2 style="text-align: center;">Send an Inquiry</h2>
-  <form th:action="@{/send-inquiry}" method="post">
-    <label for="message">Message:</label>
-    <textarea id="message" name="message" rows="4" required></textarea>
-
-    <input type="hidden" name="itemId" th:value="${item.id}">
-
-    <button type="submit">Send Inquiry</button>
-  </form>
-</div>
-<div id="modalBackground"></div>
 
 <script>
-  // Open the modal when the button is clicked
-  const contactDetailsButton = document.getElementById("contactDetailsButton");
-  if (contactDetailsButton) {
-    contactDetailsButton.addEventListener("click", function () {
-      document.getElementById("inquiryModal").style.display = "block";
-      document.getElementById("modalBackground").style.display = "block";
-    });
+  function setInquiryText(text) {
+    const textarea = document.getElementById("inquiryMessage");
+    if (textarea) {
+      textarea.value = text;
+      textarea.focus();
+    }
   }
 
-  // Close the modal when the close button is clicked
-  document.getElementById("closeInquiryModal").addEventListener("click", function () {
-    document.getElementById("inquiryModal").style.display = "none";
-    document.getElementById("modalBackground").style.display = "none";
-  });
-
-  // Close the modal when clicking outside the modal
-  document.getElementById("modalBackground").addEventListener("click", function () {
-    document.getElementById("inquiryModal").style.display = "none";
-    document.getElementById("modalBackground").style.display = "none";
-  });
+  const inquiryForm = document.getElementById("sellerInquiryForm");
+  if (inquiryForm) {
+    inquiryForm.addEventListener("submit", function () {
+      const btn = document.getElementById("sendInquiryBtn");
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = "Sending Inquiry...";
+      }
+    });
+  }
 </script>
+
 </body>
 </html>
