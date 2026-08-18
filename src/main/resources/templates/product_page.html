@@ -42,7 +42,7 @@
     <div class="gallery-column">
       <!-- Media Display Stage -->
       <div class="product-gallery-stage">
-        <img th:src="@{/media/{imageName}(imageName=${item.imagePath})}" src="/images/YUB_Logo.jpg" th:alt="${item.title}" class="product-main-image">
+        <img th:src="@{/media/{imageName}(imageName=${item.imagePath})}" src="/images/YUB_Logo.jpg" onerror="this.onerror=null; this.src='/images/YUB_Logo.jpg';" th:alt="${item.title}" class="product-main-image">
       </div>
 
       <!-- Description & Specs Card -->
