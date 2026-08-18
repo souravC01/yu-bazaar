@@ -75,7 +75,8 @@
 
     <!-- Category Filter Pills -->
     <div class="hero-categories">
-      <a th:href="@{/}" href="/" class="category-chip active">All Items</a>
+      <a th:href="@{/home(yorkOnly=false)}" class="category-chip" th:classappend="${yorkOnly == false and (searchKeyword == null or searchKeyword.isEmpty())} ? 'active' : ''">All Listings</a>
+      <a th:href="@{/home(yorkOnly=true)}" class="category-chip" th:classappend="${yorkOnly == true} ? 'active' : ''" style="border-color: rgba(187, 247, 208, 0.4); color: #86efac;">✓ York Verified Only</a>
       <a th:href="@{/search(keyword='Textbook')}" class="category-chip">Textbooks</a>
       <a th:href="@{/search(keyword='Tech')}" class="category-chip">Tech &amp; Electronics</a>
       <a th:href="@{/search(keyword='Dorm')}" class="category-chip">Dorm Living</a>
@@ -97,9 +98,11 @@
   <div class="section-header">
     <div>
       <h2 class="section-title">Campus Listings</h2>
-      <span class="listing-count" th:text="${items.size()} + ' active listings from verified students'">Active Listings</span>
+      <span class="listing-count" th:text="${items.size()} + ' active listings' + (${yorkOnly} ? ' (York Verified Only)' : '')">Active Listings</span>
     </div>
-    <div>
+    <div style="display: flex; gap: 10px; align-items: center;">
+      <a th:if="${!yorkOnly}" th:href="@{/home(yorkOnly=true)}" class="btn btn-outline-dark btn-sm" style="color: var(--primary-ink); border-color: var(--hairline-light);">✓ Filter: York Verified Only</a>
+      <a th:if="${yorkOnly}" th:href="@{/home(yorkOnly=false)}" class="btn btn-primary-pill btn-sm" style="background-color: #064e3b;">✓ Showing York Verified (Reset)</a>
       <button type="button" class="btn btn-primary-pill btn-sm" th:unless="${isDemo}" onclick="openListingModal()">+ Post New Item</button>
     </div>
   </div>
@@ -108,7 +111,7 @@
   <div class="empty-state" th:if="${items == null or items.size() == 0}">
     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin: 0 auto 16px; color: var(--shade-40);"><circle cx="12" cy="12" r="10"></circle><path d="M8 12h8"></path></svg>
     <h3 class="empty-state-title">No listings found</h3>
-    <p class="empty-state-desc">Try a different search term or be the first student to post an item in this category!</p>
+    <p class="empty-state-desc">Try a different search term or be the first to post an item!</p>
     <button type="button" class="btn btn-primary-pill btn-md" th:unless="${isDemo}" onclick="openListingModal()">Post an Item Now</button>
   </div>
 
@@ -127,9 +130,19 @@
       <div class="listing-body">
         <a th:href="@{/product/{id}(id=${item.id})}" href="/product/1" class="listing-title-link" th:text="${item.title}">Product Title</a>
 
-        <div class="listing-meta">
-          <svg class="listing-location-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-          <span th:text="${item.location}">York University</span>
+        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; flex-wrap: wrap; gap: 4px;">
+          <div class="listing-meta" style="margin-bottom: 0;">
+            <svg class="listing-location-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+            <span th:text="${item.location}">York University</span>
+          </div>
+          <!-- Verification Tier Badge -->
+          <span class="badge-verified" th:if="${item.isSellerYorkVerified()}" style="font-size: 11px; padding: 2px 8px;">
+            <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+            York Verified
+          </span>
+          <span class="badge-public" th:unless="${item.isSellerYorkVerified()}" style="font-size: 11px; padding: 2px 8px;">
+            Public Seller
+          </span>
         </div>
 
         <div class="listing-footer">

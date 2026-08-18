@@ -83,16 +83,19 @@
       <div>
         <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
           <h1 style="font-family: var(--font-family-display); font-size: 26px; font-weight: 600; color: var(--primary-ink);" th:text="${user.name}">Student Name</h1>
-          <span class="badge-verified">
+          <span class="badge-verified" th:if="${user.isYorkVerified()}">
             <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
-            Verified York Student
+            York Verified Student
+          </span>
+          <span class="badge-public" th:unless="${user.isYorkVerified()}">
+            Public Member
           </span>
         </div>
         <p style="font-size: 14px; color: var(--shade-50);" th:text="${user.email}">student@my.yorku.ca</p>
       </div>
     </div>
 
-    <div class="section-label" style="margin-bottom: 16px;">Student Account Details</div>
+    <div class="section-label" style="margin-bottom: 16px;">Account Details</div>
 
     <div class="profile-data-row">
       <span class="profile-data-label">Full Name</span>

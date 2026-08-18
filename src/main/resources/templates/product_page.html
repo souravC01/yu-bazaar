@@ -88,15 +88,15 @@
           <span class="price-currency">CAD</span>
         </div>
 
-        <!-- Verified Seller Profile -->
+        <!-- Seller Profile Card -->
         <div class="seller-profile-card">
-          <div class="seller-avatar">YU</div>
+          <div class="seller-avatar" th:text="${item.isSellerYorkVerified()} ? 'YU' : 'PS'">YU</div>
           <div class="seller-info">
             <div class="seller-name">
-              <span>York University Student</span>
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="#16a34a"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+              <span th:text="${item.isSellerYorkVerified()} ? 'York University Student' : 'Public Seller'">York University Student</span>
+              <svg th:if="${item.isSellerYorkVerified()}" width="14" height="14" viewBox="0 0 24 24" fill="#16a34a"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
             </div>
-            <span class="seller-subtext">Verified @my.yorku.ca student</span>
+            <span class="seller-subtext" th:text="${item.isSellerYorkVerified()} ? 'Verified @my.yorku.ca student' : 'Verified Public Member (Email OTP)'">Verified @my.yorku.ca student</span>
           </div>
         </div>
 

@@ -247,6 +247,19 @@
   fill: currentColor;
 }
 
+.badge-public {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 10px;
+  background-color: var(--shade-20);
+  color: var(--shade-70);
+  border: 1px solid var(--hairline-light);
+  border-radius: var(--radius-pill);
+  font-size: 12px;
+  font-weight: 550;
+}
+
 /* --------------------------------------------------------------------------
    4. CARDS & CONTAINERS (Level 3 Elevation Paper-Halo)
    -------------------------------------------------------------------------- */

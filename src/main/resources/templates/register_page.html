@@ -39,7 +39,7 @@
     </div>
 
     <h2 class="auth-card-title">Join YU Bazaar</h2>
-    <p class="auth-card-subtitle">Exclusively for York University undergraduate &amp; graduate students</p>
+    <p class="auth-card-subtitle">Open to York University students, alumni, and community members</p>
 
     <!-- Flash Messages -->
     <div class="alert-box alert-success" th:if="${success}" th:text="${success}"></div>
@@ -54,9 +54,9 @@
       </div>
 
       <div class="form-group">
-        <label class="form-label" for="email">York University Email *</label>
-        <input type="email" id="email" name="email" class="form-input" placeholder="student@my.yorku.ca" required>
-        <span class="form-hint">Must end in @my.yorku.ca or @yorku.ca</span>
+        <label class="form-label" for="email">Email Address *</label>
+        <input type="email" id="email" name="email" class="form-input" placeholder="e.g. student@my.yorku.ca or name@gmail.com" required>
+        <span class="form-hint">Tip: Use your <strong>@my.yorku.ca</strong> email to earn the <strong>✓ York Verified Student</strong> badge.</span>
         <div class="form-error" id="emailError"></div>
       </div>
 
@@ -100,7 +100,7 @@
       </div>
 
       <div style="margin-top: 24px;">
-        <button type="submit" class="btn btn-primary-pill btn-full btn-lg">Verify with York Email &rarr;</button>
+        <button type="submit" class="btn btn-primary-pill btn-full btn-lg">Continue to 6-Digit Verification &rarr;</button>
       </div>
     </form>
 
@@ -108,8 +108,8 @@
     <div class="auth-trust-banner">
       <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
       <div>
-        <div class="auth-trust-title">Why York Student Verification?</div>
-        <div class="auth-trust-desc">Only verified @my.yorku.ca community members can buy, sell, or message. Zero spam, campus-exclusive trust.</div>
+        <div class="auth-trust-title">Dual Verification Tiers</div>
+        <div class="auth-trust-desc">Sign up with your @my.yorku.ca email to unlock the green <strong>✓ York Verified Student</strong> badge. Other emails will be verified as a <strong>Public Seller</strong>.</div>
       </div>
     </div>
   </div>
@@ -139,9 +139,9 @@
       isValid = false;
     }
 
-    const yorkDomainPattern = /^[a-zA-Z0-9._-]+@(yorku\.ca|my\.yorku\.ca)$/;
-    if (!email || !yorkDomainPattern.test(email)) {
-      document.getElementById('emailError').textContent = 'Must be a valid @my.yorku.ca or @yorku.ca email.';
+    const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+    if (!email || !emailPattern.test(email)) {
+      document.getElementById('emailError').textContent = 'Please enter a valid email address.';
       isValid = false;
     }
 
