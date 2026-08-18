@@ -337,6 +337,44 @@ class SecurityWorkflowTests {
                 .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("Desk Chair"))));
     }
 
+    @Test
+    void productDetailsShowsCorrectBadgeForYorkAndPublicSellers() throws Exception {
+        String yorkSeller = "student@my.yorku.ca";
+        String publicSeller = "seller@gmail.com";
+        createUser(yorkSeller, true);
+        createUser(publicSeller, true);
+
+        Item yorkItem = new Item();
+        yorkItem.setTitle("York Textbook");
+        yorkItem.setPrice(30.0);
+        yorkItem.setWear("used");
+        yorkItem.setLocation("Scott Library");
+        yorkItem.setSellerEmail(yorkSeller);
+        yorkItem.setImagePath("york.png");
+        yorkItem = itemRepository.save(yorkItem);
+
+        Item publicItem = new Item();
+        publicItem.setTitle("Public Keyboard");
+        publicItem.setPrice(20.0);
+        publicItem.setWear("new");
+        publicItem.setLocation("Keele");
+        publicItem.setSellerEmail(publicSeller);
+        publicItem.setImagePath("public.png");
+        publicItem = itemRepository.save(publicItem);
+
+        // York item details should show "York Verified Student" and NOT "Public Seller"
+        mockMvc.perform(get("/product/" + yorkItem.getId()).with(user(yorkSeller).roles("USER")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("York Verified Student")))
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("Public Seller"))));
+
+        // Public item details should show "Public Seller" and NOT "York Verified Student"
+        mockMvc.perform(get("/product/" + publicItem.getId()).with(user(publicSeller).roles("USER")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Public Seller")))
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("York Verified Student"))));
+    }
+
     private User createUser(String email, boolean verified) {
         User user = new User();
         user.setName("Test Student");

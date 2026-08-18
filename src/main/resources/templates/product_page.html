@@ -66,9 +66,12 @@
         </div>
         <div class="product-spec-row">
           <span class="spec-key">Security Status</span>
-          <span class="badge-verified">
+          <span class="badge-verified" th:if="${item.isSellerYorkVerified()}">
             <svg viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
-            Verified York Student
+            York Verified Student
+          </span>
+          <span class="badge-public" th:unless="${item.isSellerYorkVerified()}">
+            Public Seller
           </span>
         </div>
       </div>
