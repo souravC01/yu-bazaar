@@ -299,6 +299,44 @@ class SecurityWorkflowTests {
         assertThat(itemRepository.existsById(item.getId())).isFalse();
     }
 
+    @Test
+    void yorkOnlyFilterReturnsOnlyYorkListings() throws Exception {
+        String yorkSeller = "student@my.yorku.ca";
+        String publicSeller = "seller@gmail.com";
+        createUser(yorkSeller, true);
+        createUser(publicSeller, true);
+
+        Item yorkItem = new Item();
+        yorkItem.setTitle("EECS Notes");
+        yorkItem.setPrice(10.0);
+        yorkItem.setWear("new");
+        yorkItem.setLocation("Vari Hall");
+        yorkItem.setSellerEmail(yorkSeller);
+        yorkItem.setImagePath("york.png");
+        itemRepository.save(yorkItem);
+
+        Item publicItem = new Item();
+        publicItem.setTitle("Desk Chair");
+        publicItem.setPrice(40.0);
+        publicItem.setWear("used");
+        publicItem.setLocation("Off Campus");
+        publicItem.setSellerEmail(publicSeller);
+        publicItem.setImagePath("public.png");
+        itemRepository.save(publicItem);
+
+        // Standard /home returns both
+        mockMvc.perform(get("/home").with(user(yorkSeller).roles("USER")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("EECS Notes")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Desk Chair")));
+
+        // yorkOnly=true returns only EECS Notes
+        mockMvc.perform(get("/home").param("yorkOnly", "true").with(user(yorkSeller).roles("USER")))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("EECS Notes")))
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("Desk Chair"))));
+    }
+
     private User createUser(String email, boolean verified) {
         User user = new User();
         user.setName("Test Student");

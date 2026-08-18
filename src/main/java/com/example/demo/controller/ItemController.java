@@ -71,8 +71,10 @@ public class ItemController {
     }
 
     @GetMapping("/home")
-    public String viewHomePage(Model model, HttpSession session) {
-        prepareHomeModel(model, session);
+    public String viewHomePage(@RequestParam(required = false, defaultValue = "false") boolean yorkOnly,
+                               Model model,
+                               HttpSession session) {
+        prepareHomeModel(model, session, yorkOnly);
         return "home_page";
     }
 
@@ -182,10 +184,17 @@ public class ItemController {
     }
 
     @GetMapping("/search")
-    public String searchItems(@RequestParam String keyword, Model model, HttpSession session) {
-        List<Item> searchResults = itemRepository.searchItems(keyword.trim());
+    public String searchItems(@RequestParam(required = false, defaultValue = "") String keyword,
+                              @RequestParam(required = false, defaultValue = "false") boolean yorkOnly,
+                              Model model,
+                              HttpSession session) {
+        List<Item> searchResults = keyword.isBlank() ? itemRepository.findAll() : itemRepository.searchItems(keyword.trim());
+        if (yorkOnly) {
+            searchResults = searchResults.stream().filter(Item::isSellerYorkVerified).toList();
+        }
         model.addAttribute("items", searchResults);
         model.addAttribute("searchKeyword", keyword.trim());
+        model.addAttribute("yorkOnly", yorkOnly);
         issueListingSubmissionToken(model, session);
         return "home_page";
     }
@@ -213,13 +222,18 @@ public class ItemController {
     }
 
     private String homeWithError(Model model, HttpSession session, String error) {
-        prepareHomeModel(model, session);
+        prepareHomeModel(model, session, false);
         model.addAttribute("error", error);
         return "home_page";
     }
 
-    private void prepareHomeModel(Model model, HttpSession session) {
-        model.addAttribute("items", itemRepository.findAll());
+    private void prepareHomeModel(Model model, HttpSession session, boolean yorkOnly) {
+        List<Item> items = itemRepository.findAll();
+        if (yorkOnly) {
+            items = items.stream().filter(Item::isSellerYorkVerified).toList();
+        }
+        model.addAttribute("items", items);
+        model.addAttribute("yorkOnly", yorkOnly);
         issueListingSubmissionToken(model, session);
     }
 
