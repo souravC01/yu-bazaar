@@ -23,7 +23,6 @@ public class User {
 
     @Email(message = "Invalid email format.")
     @NotBlank(message = "Email is required.")
-    @Pattern(regexp = "^[a-zA-Z0-9._-]+@(yorku\\.ca|my\\.yorku\\.ca)$", message = "Email must be a valid York University email (yorku.ca or my.yorku.ca).")
     @Column(name = "email", nullable = false, unique = true)
     private String email;
 
@@ -67,6 +66,14 @@ public class User {
 
     public void setVerified(boolean verified) {
         isVerified = verified;
+    }
+
+    public boolean isYorkVerified() {
+        if (email == null) {
+            return false;
+        }
+        String lower = email.toLowerCase();
+        return isVerified && (lower.endsWith("@yorku.ca") || lower.endsWith("@my.yorku.ca"));
     }
 
     public Long getId() {

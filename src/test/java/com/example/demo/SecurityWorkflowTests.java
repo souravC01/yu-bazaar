@@ -101,6 +101,62 @@ class SecurityWorkflowTests {
     }
 
     @Test
+    void publicEmailCanRegisterAndVerifyAsPublicUser() throws Exception {
+        mockMvc.perform(post("/register")
+                        .with(csrf())
+                        .param("name", "Public Seller")
+                        .param("email", "public.user@gmail.com")
+                        .param("age", "25")
+                        .param("gender", "Female")
+                        .param("dob", "1999-05-15")
+                        .param("password", "secure-pass")
+                        .param("confirmPassword", "secure-pass"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/verify?email=public.user%40gmail.com"));
+
+        User publicUser = userRepository.findByEmailIgnoreCase("public.user@gmail.com").orElseThrow();
+        assertThat(publicUser.isVerified()).isFalse();
+        assertThat(publicUser.isYorkVerified()).isFalse();
+
+        // Verify OTP
+        mockMvc.perform(post("/verify")
+                        .with(csrf())
+                        .param("email", "public.user@gmail.com")
+                        .param("otp", publicUser.getOtp()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/"));
+
+        User verifiedPublicUser = userRepository.findByEmailIgnoreCase("public.user@gmail.com").orElseThrow();
+        assertThat(verifiedPublicUser.isVerified()).isTrue();
+        assertThat(verifiedPublicUser.isYorkVerified()).isFalse();
+
+        // Can log in
+        mockMvc.perform(formLogin("/login")
+                        .userParameter("email")
+                        .user("public.user@gmail.com")
+                        .password("secure-pass"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/home"))
+                .andExpect(authenticated().withUsername("public.user@gmail.com"));
+    }
+
+    @Test
+    void yorkEmailReceivesYorkVerifiedStatus() {
+        User yorkStudent = new User();
+        yorkStudent.setEmail("student@my.yorku.ca");
+        yorkStudent.setVerified(true);
+        assertThat(yorkStudent.isYorkVerified()).isTrue();
+
+        Item yorkItem = new Item();
+        yorkItem.setSellerEmail("student@my.yorku.ca");
+        assertThat(yorkItem.isSellerYorkVerified()).isTrue();
+
+        Item publicItem = new Item();
+        publicItem.setSellerEmail("seller@gmail.com");
+        assertThat(publicItem.isSellerYorkVerified()).isFalse();
+    }
+
+    @Test
     void verifiedAccountCanLogIn() throws Exception {
         createUser("student@my.yorku.ca", true);
 

@@ -19,7 +19,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 @Controller
 public class TemplateController {
-    private static final String YORK_EMAIL_PATTERN = "[a-zA-Z0-9._%+-]+@(yorku\\.ca|my\\.yorku\\.ca)";
+    private static final String EMAIL_PATTERN = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
 
     private final UserRepository userRepository;
     private final EmailSender emailSender;
@@ -70,8 +70,8 @@ public class TemplateController {
         if (name == null || name.isBlank()) {
             return registrationError(model, "Name is required.");
         }
-        if (!normalizedEmail.matches(YORK_EMAIL_PATTERN)) {
-            return registrationError(model, "Use a valid York University email address.");
+        if (!normalizedEmail.matches(EMAIL_PATTERN)) {
+            return registrationError(model, "Use a valid email address.");
         }
         if (age <= 0) {
             return registrationError(model, "Age must be a positive number.");

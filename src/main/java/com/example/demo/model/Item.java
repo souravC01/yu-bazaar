@@ -82,5 +82,13 @@ public class Item {
 
     public void setSellerEmail(String sellerEmail) {
         this.sellerEmail = sellerEmail;
+    }
+
+    public boolean isSellerYorkVerified() {
+        if (sellerEmail == null) {
+            return false;
         }
+        String lower = sellerEmail.toLowerCase();
+        return lower.endsWith("@yorku.ca") || lower.endsWith("@my.yorku.ca");
+    }
 }
