@@ -10,6 +10,7 @@ import com.example.demo.service.DemoAccountPolicy;
 import com.example.demo.storage.ImageStorageService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -32,25 +33,19 @@ public class ItemController {
     private static final String LISTING_SUBMISSION_TOKEN = "listingSubmissionToken";
     private static final Set<String> VALID_WEAR_OPTIONS = Set.of("new", "used (like new)", "used", "poor");
     private static final List<String> VALID_LOCATIONS = Arrays.asList(
-            "Accolade Building East", "Accolade Building West", "Archives of Ontario", "Atkinson",
             "Norman Bethune College", "Bennett Centre for Student Services", "Bergeron Centre for Engineering Excellence",
             "Behavioural Sciences Building", "Burton Auditorium", "Chemistry Building", "Calumet College",
             "The Joan & Martin Goldfarb Centre for Fine Arts", "Centre for Film and Theatre", "Curtis Lecture Halls",
             "Computer Methods Building", "Central Square", "Central Utilities Building", "Dahdaleh Building",
             "Executive Learning Centre", "Founders College", "Frost Library (Glendon campus)",
-            "Farquharson Life Sciences", "Founders Tennis Court", "Glendon Hall (Glendon campus)",
-            "Lorna R. Marsden Honours Court & Welcome Centre", "Hart House (Osgoode Hall Law School)",
-            "Health, Nursing and Environmental Studies Building", "Hilliard Residence (Glendon campus)",
-            "Ignat Kaneff Building", "Kinsmen Building", "Kaneff Tower", "Lassonde Building", "LA&PS @ IBM Markham",
-            "Life Sciences Building", "Lumbers Building", "Rob and Cheryl McEwen Graduate Study & Research Building",
-            "McLaughlin College", "Off Campus", "Physical Resources Building",
-            "Petrie Science and Engineering Building / Petrie Observatory", "Ross Building - North wing",
-            "Ross Building - South wing", "Seneca @ York", "Stong College", "Scott Library",
-            "Sherman Health Science Research Centre", "Stedman Lecture Halls", "Seymour Schulich Building",
-            "Sheridan College - Trafalgar Campus", "Student Centre", "Steacie Science and Engineering Library",
-            "Tennis Canada", "Technology and Enhanced Learning Building", "Track and Field Centre",
-            "Tait McKenzie Centre", "Tait Tennis Courts", "Vanier College", "Vari Hall", "Winters College",
-            "West Office Building", "William Small Centre", "York Hall (Glendon campus)", "York Lanes"
+            "Hilliard Residence (Glendon campus)", "Health, Nursing and Environmental Studies Building",
+            "Ignat Kaneff Building", "Keele Campus", "Kinsmen Building", "Life Sciences Building",
+            "Lorna R. Marsden Honour Court & Welcome Centre", "Lumbers Building", "Mc Laughlin College",
+            "Osgoode Hall Law School", "Petrie Science and Engineering Building", "Physical Resources Building",
+            "Ross Building", "Robbins Library", "Steacie Science and Engineering Building",
+            "Stedman Community Centre", "Student Centre", "Seymour Schulich Building", "The Pond Road Residence",
+            "Tait McKenzie Centre", "Vanier College", "Vari Hall", "Victor Phillip Dahdaleh Building",
+            "Winters College", "York Lanes", "Glendon Campus", "Scott Library"
     );
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
@@ -70,16 +65,19 @@ public class ItemController {
         this.demoAccountPolicy = demoAccountPolicy;
     }
 
-    @GetMapping("/home")
+    @GetMapping({"/", "/home"})
     public String viewHomePage(@RequestParam(required = false, defaultValue = "false") boolean yorkOnly,
                                Model model,
-                               HttpSession session) {
+                               HttpSession session,
+                               Authentication authentication) {
+        populateUserContext(model, authentication);
         prepareHomeModel(model, session, yorkOnly);
         return "home_page";
     }
 
     @GetMapping("/product/{id}")
     public String viewProductDetails(@PathVariable Long id, Authentication authentication, Model model) {
+        populateUserContext(model, authentication);
         Item item = getItem(id);
         model.addAttribute("item", item);
         model.addAttribute("isOwner", ownsItem(item, authentication));
@@ -104,13 +102,13 @@ public class ItemController {
             return "redirect:/home";
         }
         if (title.isBlank() || price < 0) {
-            return homeWithError(model, session, "Enter a title and a non-negative price.");
+            return homeWithError(model, session, "Enter a title and a non-negative price.", authentication);
         }
         if (!VALID_WEAR_OPTIONS.contains(wear)) {
-            return homeWithError(model, session, "Invalid wear condition selected.");
+            return homeWithError(model, session, "Invalid wear condition selected.", authentication);
         }
         if (!VALID_LOCATIONS.contains(location)) {
-            return homeWithError(model, session, "Invalid location selected.");
+            return homeWithError(model, session, "Invalid location selected.", authentication);
         }
 
         String storedImageKey = null;
@@ -133,10 +131,10 @@ public class ItemController {
             redirectAttributes.addFlashAttribute("success", "Item added successfully.");
             return "redirect:/home";
         } catch (IllegalArgumentException exception) {
-            return homeWithError(model, session, exception.getMessage());
+            return homeWithError(model, session, exception.getMessage(), authentication);
         } catch (Exception exception) {
             imageStorageService.deleteQuietly(storedImageKey);
-            return homeWithError(model, session, "The item could not be added. Please try again.");
+            return homeWithError(model, session, "The item could not be added. Please try again.", authentication);
         }
     }
 
@@ -187,7 +185,9 @@ public class ItemController {
     public String searchItems(@RequestParam(required = false, defaultValue = "") String keyword,
                               @RequestParam(required = false, defaultValue = "false") boolean yorkOnly,
                               Model model,
-                              HttpSession session) {
+                              HttpSession session,
+                              Authentication authentication) {
+        populateUserContext(model, authentication);
         List<Item> searchResults = keyword.isBlank() ? itemRepository.findAll() : itemRepository.searchItems(keyword.trim());
         if (yorkOnly) {
             searchResults = searchResults.stream().filter(Item::isSellerYorkVerified).toList();
@@ -211,17 +211,41 @@ public class ItemController {
                 .toList();
     }
 
+    private void populateUserContext(Model model, Authentication authentication) {
+        boolean authenticated = authentication != null
+                && authentication.isAuthenticated()
+                && !(authentication instanceof AnonymousAuthenticationToken);
+        model.addAttribute("isAuthenticated", authenticated);
+        if (authenticated) {
+            userRepository.findByEmailIgnoreCase(authentication.getName()).ifPresent(user -> {
+                model.addAttribute("userName", user.getName());
+                model.addAttribute("userEmail", user.getEmail());
+            });
+            model.addAttribute("isDemo", demoAccountPolicy.isDemo(authentication));
+        } else {
+            model.addAttribute("userName", null);
+            model.addAttribute("userEmail", null);
+            model.addAttribute("isDemo", false);
+        }
+    }
+
     private Item getItem(Long id) {
         return itemRepository.findById(id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
     }
 
     private boolean ownsItem(Item item, Authentication authentication) {
-        return item.getSellerEmail() != null
+        return authentication != null
+                && item.getSellerEmail() != null
                 && item.getSellerEmail().equalsIgnoreCase(authentication.getName());
     }
 
     private String homeWithError(Model model, HttpSession session, String error) {
+        return homeWithError(model, session, error, null);
+    }
+
+    private String homeWithError(Model model, HttpSession session, String error, Authentication authentication) {
+        populateUserContext(model, authentication);
         prepareHomeModel(model, session, false);
         model.addAttribute("error", error);
         return "home_page";
@@ -234,6 +258,12 @@ public class ItemController {
         }
         model.addAttribute("items", items);
         model.addAttribute("yorkOnly", yorkOnly);
+        if (!model.containsAttribute("isAuthenticated")) {
+            model.addAttribute("isAuthenticated", false);
+        }
+        if (!model.containsAttribute("isDemo")) {
+            model.addAttribute("isDemo", false);
+        }
         issueListingSubmissionToken(model, session);
     }
 

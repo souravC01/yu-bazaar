@@ -39,7 +39,7 @@ public class TemplateController {
         this.showLocalCodes = showLocalCodes;
     }
 
-    @GetMapping({"/", "/login"})
+    @GetMapping("/login")
     public String showLoginPage(@RequestParam(required = false) String error, Model model) {
         if (error != null) {
             model.addAttribute("error", "Invalid credentials or the account has not been verified.");
@@ -165,7 +165,7 @@ public class TemplateController {
         }
 
         redirectAttributes.addFlashAttribute("success", "Password updated. You can now sign in.");
-        return "redirect:/";
+        return "redirect:/login";
     }
 
     @PostMapping("/verify")
@@ -191,7 +191,7 @@ public class TemplateController {
         user.setOtp(null);
         userRepository.save(user);
         redirectAttributes.addFlashAttribute("success", "Account verified. You can now sign in.");
-        return "redirect:/";
+        return "redirect:/login";
     }
 
     @GetMapping("/verify")

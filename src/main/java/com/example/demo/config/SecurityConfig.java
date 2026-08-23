@@ -38,18 +38,19 @@ public class SecurityConfig {
         http
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(
-                                "/", "/login", "/register", "/verify", "/forgot-password", "/forgot_password",
+                                "/", "/home", "/search", "/search-suggestions", "/product/**", "/media/**",
+                                "/login", "/register", "/verify", "/forgot-password", "/forgot_password",
                                 "/reset-password",
                                 "/css/**", "/images/**", "/actuator/health", "/error"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form
-                        .loginPage("/")
+                        .loginPage("/login")
                         .loginProcessingUrl("/login")
                         .usernameParameter("email")
                         .defaultSuccessUrl("/home", true)
-                        .failureUrl("/?error")
+                        .failureUrl("/login?error")
                         .permitAll()
                 )
                 .logout(logout -> logout

@@ -67,10 +67,21 @@ class SecurityWorkflowTests {
     }
 
     @Test
-    void anonymousUsersAreRedirectedToLogin() throws Exception {
+    void anonymousUsersCanBrowseMarketplaceHomeAndProductDetails() throws Exception {
+        mockMvc.perform(get("/"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Sign In")));
+
         mockMvc.perform(get("/home"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Sign In")));
+    }
+
+    @Test
+    void anonymousUsersAreRedirectedToLoginForProtectedRoutes() throws Exception {
+        mockMvc.perform(get("/profile"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrlPattern("**/"));
+                .andExpect(redirectedUrlPattern("**/login"));
     }
 
     @Test
@@ -124,7 +135,7 @@ class SecurityWorkflowTests {
                         .param("email", "public.user@gmail.com")
                         .param("otp", publicUser.getOtp()))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/"));
+                .andExpect(redirectedUrl("/login"));
 
         User verifiedPublicUser = userRepository.findByEmailIgnoreCase("public.user@gmail.com").orElseThrow();
         assertThat(verifiedPublicUser.isVerified()).isTrue();

@@ -84,7 +84,7 @@ class PasswordResetWorkflowTests {
                         .param("newPassword", "updated-pass")
                         .param("confirmNewPassword", "updated-pass"))
                 .andExpect(status().is3xxRedirection())
-                .andExpect(redirectedUrl("/"));
+                .andExpect(redirectedUrl("/login"));
 
         User resetUser = userRepository.findByEmailIgnoreCase(EMAIL).orElseThrow();
         assertThat(passwordEncoder.matches("updated-pass", resetUser.getPassword())).isTrue();

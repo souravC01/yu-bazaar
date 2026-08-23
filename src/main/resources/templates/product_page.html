@@ -20,10 +20,14 @@
       <span>Back to Marketplace</span>
     </a>
 
-    <a th:href="@{/}" href="/" style="display: flex; align-items: center; gap: 8px; text-decoration: none;">
-      <img th:src="@{/images/YUB_Logo.jpg}" src="/images/YUB_Logo.jpg" alt="YU Bazaar" style="height: 32px; border-radius: 6px;">
-      <span style="font-family: var(--font-family-display); font-weight: 600; font-size: 17px; color: var(--primary-ink);">YU Bazaar</span>
-    </a>
+    <div style="display: flex; align-items: center; gap: 16px;">
+      <a th:href="@{/}" href="/" style="display: flex; align-items: center; gap: 8px; text-decoration: none;">
+        <img th:src="@{/images/YUB_Logo.jpg}" src="/images/YUB_Logo.jpg" alt="YU Bazaar" style="height: 32px; border-radius: 6px;">
+        <span style="font-family: var(--font-family-display); font-weight: 600; font-size: 17px; color: var(--primary-ink);">YU Bazaar</span>
+      </a>
+      <a th:if="${!isAuthenticated}" th:href="@{/login}" class="btn btn-outline-dark btn-sm">Sign In</a>
+      <a th:if="${isAuthenticated}" th:href="@{/profile}" class="btn btn-outline-dark btn-sm">My Profile</a>
+    </div>
   </div>
 
   <!-- Flash Messages -->
@@ -103,8 +107,8 @@
           </div>
         </div>
 
-        <!-- Direct Inquiry Form (If Not Owner & Not Demo) -->
-        <div th:if="${!isOwner and !isDemo}">
+        <!-- Direct Inquiry Form (If Authenticated, Not Owner & Not Demo) -->
+        <div th:if="${isAuthenticated and !isOwner and !isDemo}">
           <div class="section-label">Quick Inquiry Suggestions</div>
           <div class="quick-replies">
             <button type="button" class="quick-reply-chip" onclick="setInquiryText('Hi! Is this still available?')">Is this still available?</button>
@@ -124,6 +128,13 @@
               Send Inquiry to Seller
             </button>
           </form>
+        </div>
+
+        <!-- Guest Prompt to Sign In -->
+        <div th:unless="${isAuthenticated}" style="background-color: var(--shade-10); border: 1px solid var(--hairline-light); border-radius: var(--radius-lg); padding: 20px; text-align: center; margin-top: 16px;">
+          <p style="font-size: 14px; font-weight: 600; color: var(--primary-ink); margin-bottom: 6px;">Want to contact this seller?</p>
+          <p style="font-size: 13px; color: var(--shade-50); margin-bottom: 16px;">Sign in to send secure campus inquiries and arrange meetups.</p>
+          <a th:href="@{/login}" class="btn btn-primary-pill btn-full btn-md">Sign In to Message Seller &rarr;</a>
         </div>
 
         <!-- Owner Controls (If logged in as owner) -->

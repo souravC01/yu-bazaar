@@ -21,19 +21,27 @@
     </a>
 
     <div class="nav-actions">
-      <!-- Demo Banner Notice if in Demo Mode -->
-      <span class="user-pill-info" th:if="${userName != null}">
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
-        <span th:text="${userName}">Student</span>
-      </span>
+      <!-- When Authenticated -->
+      <th:block th:if="${isAuthenticated}">
+        <span class="user-pill-info" th:if="${userName != null}">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+          <span th:text="${userName}">Student</span>
+        </span>
 
-      <a th:href="@{/profile}" href="/profile" class="btn btn-outline-dark btn-sm">My Profile</a>
+        <a th:href="@{/profile}" href="/profile" class="btn btn-outline-dark btn-sm">My Profile</a>
+        <button type="button" class="btn btn-aloe-pill btn-sm" id="navAddItemBtn" th:unless="${isDemo}" onclick="openListingModal()">+ Sell Item</button>
 
-      <button type="button" class="btn btn-aloe-pill btn-sm" id="navAddItemBtn" th:unless="${isDemo}" onclick="openListingModal()">+ Sell Item</button>
+        <form th:action="@{/logout}" method="post" style="display: inline;">
+          <button type="submit" class="btn btn-outline-dark btn-sm">Logout</button>
+        </form>
+      </th:block>
 
-      <form th:action="@{/logout}" method="post" style="display: inline;">
-        <button type="submit" class="btn btn-outline-dark btn-sm">Logout</button>
-      </form>
+      <!-- When Guest / Not Logged In -->
+      <th:block th:unless="${isAuthenticated}">
+        <a th:href="@{/login}" href="/login" class="btn btn-outline-dark btn-sm">Sign In</a>
+        <a th:href="@{/register}" href="/register" class="btn btn-primary-pill btn-sm" style="background-color: var(--on-dark); color: var(--primary-ink);">Register</a>
+        <a th:href="@{/login}" href="/login" class="btn btn-aloe-pill btn-sm">+ Sell Item</a>
+      </th:block>
     </div>
   </div>
 </header>
@@ -85,10 +93,13 @@
     </div>
 
     <!-- Quick Action CTA -->
-    <div th:unless="${isDemo}">
-      <button type="button" class="btn btn-outline-dark btn-lg" onclick="openListingModal()">
+    <div>
+      <button type="button" class="btn btn-outline-dark btn-lg" th:if="${isAuthenticated and !isDemo}" onclick="openListingModal()">
         Sell an Item on Campus
       </button>
+      <a th:unless="${isAuthenticated}" th:href="@{/login}" class="btn btn-outline-dark btn-lg">
+        Sell an Item on Campus
+      </a>
     </div>
   </div>
 </section>
@@ -103,7 +114,8 @@
     <div style="display: flex; gap: 10px; align-items: center;">
       <a th:if="${!yorkOnly}" th:href="@{/home(yorkOnly=true)}" class="btn btn-outline-dark btn-sm" style="color: var(--primary-ink); border-color: var(--hairline-light);">✓ Filter: York Verified Only</a>
       <a th:if="${yorkOnly}" th:href="@{/home(yorkOnly=false)}" class="btn btn-primary-pill btn-sm" style="background-color: #064e3b;">✓ Showing York Verified (Reset)</a>
-      <button type="button" class="btn btn-primary-pill btn-sm" th:unless="${isDemo}" onclick="openListingModal()">+ Post New Item</button>
+      <button type="button" class="btn btn-primary-pill btn-sm" th:if="${isAuthenticated and !isDemo}" onclick="openListingModal()">+ Post New Item</button>
+      <a th:unless="${isAuthenticated}" th:href="@{/login}" class="btn btn-primary-pill btn-sm">+ Post New Item</a>
     </div>
   </div>
 
@@ -112,7 +124,8 @@
     <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin: 0 auto 16px; color: var(--shade-40);"><circle cx="12" cy="12" r="10"></circle><path d="M8 12h8"></path></svg>
     <h3 class="empty-state-title">No listings found</h3>
     <p class="empty-state-desc">Try a different search term or be the first to post an item!</p>
-    <button type="button" class="btn btn-primary-pill btn-md" th:unless="${isDemo}" onclick="openListingModal()">Post an Item Now</button>
+    <button type="button" class="btn btn-primary-pill btn-md" th:if="${isAuthenticated and !isDemo}" onclick="openListingModal()">Post an Item Now</button>
+    <a th:unless="${isAuthenticated}" th:href="@{/login}" class="btn btn-primary-pill btn-md">Sign In to Post an Item</a>
   </div>
 
   <!-- Listings Grid -->
