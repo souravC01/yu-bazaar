@@ -71,6 +71,17 @@ class ProfileWorkflowTests {
                 .andExpect(content().string(not(containsString("Delete listing"))));
     }
 
+    @Test
+    void emptyDemoProfileDoesNotOfferListingCreation() throws Exception {
+        createUser(DEMO_EMAIL, "YU Bazaar Demo");
+
+        mockMvc.perform(get("/profile").with(user(DEMO_EMAIL).roles("USER")))
+                .andExpect(status().isOk())
+                .andExpect(model().attribute("items", hasSize(0)))
+                .andExpect(content().string(containsString("read-only demo")))
+                .andExpect(content().string(not(containsString("Post your first item"))));
+    }
+
     private User createUser(String email, String name) {
         User user = new User();
         user.setName(name);

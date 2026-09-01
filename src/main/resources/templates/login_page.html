@@ -50,7 +50,7 @@
     <!-- Demo Mode Quick Prefill -->
     <div class="demo-quick-login">
       <p class="demo-quick-login-text">👋 Viewing as a guest or recruiter? Use demo access:</p>
-      <button type="button" class="btn btn-outline-light btn-sm" onclick="prefillDemo()">Try the read-only demo</button>
+      <button type="button" id="demoLoginButton" class="btn btn-outline-light btn-sm">Try the read-only demo</button>
       <span class="form-hint">demo@yubazaar.app</span>
     </div>
   </div>
@@ -63,16 +63,7 @@
   </div>
 </div>
 
-<script>
-  function prefillDemo() {
-    const emailField = document.getElementById("email");
-    const passField = document.getElementById("password");
-    if (emailField && passField) {
-      emailField.value = "demo@yubazaar.app";
-      passField.value = "Demo@YuBazaar2026";
-    }
-  }
-</script>
+<script th:src="@{/js/demo-login.js}" src="/js/demo-login.js" defer></script>
 
 </body>
 </html>

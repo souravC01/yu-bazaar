@@ -278,6 +278,12 @@
   color: var(--shade-50);
 }
 
+.listing-header-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
 /* Listing Grid Layout */
 .listing-grid {
   display: grid;
@@ -514,6 +520,16 @@
 
   .marketplace-container {
     padding: 40px 16px 64px;
+  }
+
+  .section-header {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .listing-header-actions {
+    flex-wrap: wrap;
   }
 
   .listing-grid {

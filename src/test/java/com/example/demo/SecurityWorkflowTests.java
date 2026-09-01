@@ -119,7 +119,11 @@ class SecurityWorkflowTests {
                         "Must be an active @my.yorku.ca or @yorku.ca email"
                 ))))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Try the read-only demo")))
-                .andExpect(content().string(org.hamcrest.Matchers.containsString(DEMO_EMAIL)));
+                .andExpect(content().string(org.hamcrest.Matchers.containsString(DEMO_EMAIL)))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("/js/demo-login.js")))
+                .andExpect(content().string(org.hamcrest.Matchers.not(
+                        org.hamcrest.Matchers.containsString("onclick=\"prefillDemo()\"")
+                )));
     }
 
     @Test

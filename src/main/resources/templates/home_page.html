@@ -112,7 +112,7 @@
       <h2 class="section-title">Campus Listings</h2>
       <span class="listing-count" th:text="${items.size()} + ' active listings' + (${yorkOnly} ? ' (York Verified Only)' : '')">Active Listings</span>
     </div>
-    <div style="display: flex; gap: 10px; align-items: center;">
+    <div class="listing-header-actions">
       <a th:if="${!yorkOnly}" th:href="@{/home(yorkOnly=true)}" class="btn btn-outline-dark btn-sm" style="color: var(--primary-ink); border-color: var(--hairline-light);">✓ Filter: York Verified Only</a>
       <a th:if="${yorkOnly}" th:href="@{/home(yorkOnly=false)}" class="btn btn-primary-pill btn-sm" style="background-color: #064e3b;">✓ Showing York Verified (Reset)</a>
       <button type="button" class="btn btn-primary-pill btn-sm" th:if="${isAuthenticated and !isDemo}" onclick="openListingModal()">+ Post New Item</button>

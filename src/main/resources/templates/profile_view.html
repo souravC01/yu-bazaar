@@ -160,8 +160,8 @@
 
     <div class="section-label" style="margin-top: 32px;">Your Listings</div>
     <div class="empty-state" th:if="${items.isEmpty()}" style="padding: 24px 0;">
-      <p class="empty-state-desc">You have not posted a listing yet.</p>
-      <a th:href="@{/home}" class="btn btn-primary-pill btn-sm">Post your first item</a>
+      <p class="empty-state-desc" th:text="${isDemo} ? 'This read-only demo account has no listings.' : 'You have not posted a listing yet.'">You have not posted a listing yet.</p>
+      <a th:unless="${isDemo}" th:href="@{/home}" class="btn btn-primary-pill btn-sm">Post your first item</a>
     </div>
     <div class="profile-listings" th:unless="${items.isEmpty()}">
       <article class="profile-listing-card" th:each="item : ${items}">
