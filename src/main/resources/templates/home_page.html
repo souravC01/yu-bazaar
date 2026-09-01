@@ -134,7 +134,13 @@
     <article class="listing-card" th:each="item : ${items}">
       <!-- Image Stage -->
       <div class="listing-media-wrap">
-        <img th:src="@{/media/{filename}(filename=${item.imagePath})}" src="/images/YUB_Logo.jpg" onerror="this.onerror=null; this.src='/images/YUB_Logo.jpg';" alt="Listing photo" class="listing-img" loading="lazy">
+        <img th:if="${item.imagePath != null}"
+             th:src="@{/media/{filename}(filename=${item.imagePath})}"
+             onerror="this.onerror=null; this.src='/images/YUB_Logo.jpg';"
+             alt="Listing photo" class="listing-img" loading="lazy">
+        <img th:unless="${item.imagePath != null}"
+             th:src="@{/images/YUB_Logo.jpg}"
+             alt="YU Bazaar listing placeholder" class="listing-img" loading="lazy">
         <div class="listing-tags">
           <span class="pill-tag pill-tag-mint" th:if="${item.wear}" th:text="${item.wear}">Condition</span>
         </div>

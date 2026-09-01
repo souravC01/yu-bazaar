@@ -48,9 +48,10 @@
     </form>
 
     <!-- Demo Mode Quick Prefill -->
-    <div class="demo-quick-login" th:if="${isDemo != null and isDemo}">
+    <div class="demo-quick-login">
       <p class="demo-quick-login-text">👋 Viewing as a guest or recruiter? Use demo access:</p>
-      <button type="button" class="btn btn-outline-light btn-sm" onclick="prefillDemo()">Auto-Fill Demo Credentials</button>
+      <button type="button" class="btn btn-outline-light btn-sm" onclick="prefillDemo()">Try the read-only demo</button>
+      <span class="form-hint">demo@yubazaar.app</span>
     </div>
   </div>
 

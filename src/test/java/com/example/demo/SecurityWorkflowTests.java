@@ -96,7 +96,9 @@ class SecurityWorkflowTests {
                 )))
                 .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString(
                         "Must be an active @my.yorku.ca or @yorku.ca email"
-                ))));
+                ))))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Try the read-only demo")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString(DEMO_EMAIL)));
     }
 
     @Test
@@ -247,6 +249,42 @@ class SecurityWorkflowTests {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("image/png"))
                 .andExpect(content().bytes(new byte[]{1, 2, 3}));
+
+        mockMvc.perform(get("/media/" + item.getImagePath()))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("image/png"))
+                .andExpect(content().bytes(new byte[]{1, 2, 3}));
+    }
+
+    @Test
+    void nullListingImagesRenderAnExplicitStaticPlaceholder() throws Exception {
+        Item item = new Item();
+        item.setTitle("Listing Without Photo");
+        item.setPrice(5.0);
+        item.setWear("used");
+        item.setLocation("Scott Library");
+        item.setDescription("Placeholder expected");
+        item.setSellerEmail("seller@gmail.com");
+        item.setImagePath(null);
+        item = itemRepository.save(item);
+
+        mockMvc.perform(get("/home"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString(
+                        "alt=\"YU Bazaar listing placeholder\""
+                )))
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString(
+                        "/media/default-listing.png"
+                ))));
+
+        mockMvc.perform(get("/product/" + item.getId()))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString(
+                        "alt=\"YU Bazaar listing placeholder\""
+                )))
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString(
+                        "/media/default-listing.png"
+                ))));
     }
 
     @Test
