@@ -49,6 +49,12 @@ public class User {
     @Column(name = "otp", nullable = true)
     private String otp;
 
+    @Column(name = "otp_expires_at")
+    private Instant otpExpiresAt;
+
+    @Column(name = "otp_last_sent_at")
+    private Instant otpLastSentAt;
+
     @Column(name = "is_verified", nullable = false)
     private boolean isVerified = false;
 
@@ -58,6 +64,22 @@ public class User {
 
     public void setOtp(String otp) {
         this.otp = otp;
+    }
+
+    public Instant getOtpExpiresAt() {
+        return otpExpiresAt;
+    }
+
+    public void setOtpExpiresAt(Instant otpExpiresAt) {
+        this.otpExpiresAt = otpExpiresAt;
+    }
+
+    public Instant getOtpLastSentAt() {
+        return otpLastSentAt;
+    }
+
+    public void setOtpLastSentAt(Instant otpLastSentAt) {
+        this.otpLastSentAt = otpLastSentAt;
     }
 
     public boolean isVerified() {
