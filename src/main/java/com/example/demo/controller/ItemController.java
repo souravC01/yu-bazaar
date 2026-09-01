@@ -126,6 +126,20 @@ public class ItemController {
                               Model model) {
         demoAccountPolicy.requireWritable(authentication);
         Item item = getItem(itemId);
+        populateUserContext(model, authentication);
+        model.addAttribute("item", item);
+        model.addAttribute("isOwner", ownsItem(item, authentication));
+
+        String trimmedMessage = message.trim();
+        if (trimmedMessage.isEmpty()) {
+            model.addAttribute("error", "Enter a message for the seller.");
+            return "product_page";
+        }
+        if (trimmedMessage.length() > 1_000) {
+            model.addAttribute("error", "Message must be 1,000 characters or fewer.");
+            return "product_page";
+        }
+
         User buyer = userRepository.findByEmailIgnoreCase(authentication.getName())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
 
@@ -134,15 +148,13 @@ public class ItemController {
                 "Hi,\n\nYou have received a new inquiry for your listing titled '%s'.\n\n" +
                         "Inquiry Details:\nBuyer Name: %s\nBuyer Email: %s\nMessage: %s\n\n" +
                         "You can contact the buyer directly to follow up.\n\nRegards,\nYU Bazaar Team",
-                item.getTitle(), buyer.getName(), buyer.getEmail(), message.trim()
+                item.getTitle(), buyer.getName(), buyer.getEmail(), trimmedMessage
         );
 
         boolean delivered = emailSender.sendEmail(item.getSellerEmail(), subject, emailBody);
         model.addAttribute("success", delivered
                 ? "Inquiry sent successfully to the seller."
                 : "Email delivery is disabled in this local environment.");
-        model.addAttribute("item", item);
-        model.addAttribute("isOwner", ownsItem(item, authentication));
         return "product_page";
     }
 

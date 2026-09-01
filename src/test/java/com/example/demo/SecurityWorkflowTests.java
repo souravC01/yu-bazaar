@@ -30,7 +30,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrlPattern;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 @SpringBootTest(properties = "app.upload.directory=target/test-uploads")
 @AutoConfigureMockMvc
@@ -305,6 +307,41 @@ class SecurityWorkflowTests {
                         .with(user(DEMO_EMAIL).roles("USER"))
                         .with(csrf()))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void inquiryRequiresAMessageWithinTheAdvertisedLimit() throws Exception {
+        String sellerEmail = "seller@my.yorku.ca";
+        String buyerEmail = "buyer@gmail.com";
+        createUser(sellerEmail, true);
+        createUser(buyerEmail, true);
+
+        Item item = new Item();
+        item.setTitle("Desk Lamp");
+        item.setPrice(15.0);
+        item.setWear("used");
+        item.setLocation("York Lanes");
+        item.setDescription("Working condition");
+        item.setSellerEmail(sellerEmail);
+        item = itemRepository.save(item);
+
+        mockMvc.perform(post("/send-inquiry")
+                        .param("itemId", item.getId().toString())
+                        .param("message", "   ")
+                        .with(user(buyerEmail).roles("USER"))
+                        .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(view().name("product_page"))
+                .andExpect(model().attribute("error", "Enter a message for the seller."));
+
+        mockMvc.perform(post("/send-inquiry")
+                        .param("itemId", item.getId().toString())
+                        .param("message", "x".repeat(1001))
+                        .with(user(buyerEmail).roles("USER"))
+                        .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(view().name("product_page"))
+                .andExpect(model().attribute("error", "Message must be 1,000 characters or fewer."));
     }
 
     @Test
