@@ -81,6 +81,27 @@ class SecurityWorkflowTests {
     }
 
     @Test
+    void publicFooterContainsOnlyRealDestinations() throws Exception {
+        mockMvc.perform(get("/"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString(
+                        "href=\"#terms\""
+                ))))
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString(
+                        "href=\"#privacy\""
+                ))))
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString(
+                        "href=\"#security\""
+                ))))
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString(
+                        "href=\"#vari-hall\""
+                ))))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString(
+                        "https://github.com/souravC01/yu-bazaar"
+                )));
+    }
+
+    @Test
     void anonymousUsersAreRedirectedToLoginForProtectedRoutes() throws Exception {
         mockMvc.perform(get("/profile"))
                 .andExpect(status().is3xxRedirection())

@@ -250,29 +250,29 @@
     </div>
 
     <div class="footer-col">
-      <h5>Campus Safety</h5>
+      <h5>Marketplace</h5>
       <ul>
-        <li><a href="#vari-hall">Vari Hall Designated Safe Zone</a></li>
-        <li><a href="#safety">Campus Meetup Tips</a></li>
-        <li><a href="#security">York Security Services</a></li>
-      </ul>
-    </div>
-
-    <div class="footer-col">
-      <h5>Student Hub</h5>
-      <ul>
-        <li><a th:href="@{/profile}">My Listings</a></li>
+        <li><a th:href="@{/}">All Listings</a></li>
+        <li><a th:href="@{/home(yorkOnly=true)}">York Verified Listings</a></li>
         <li><a th:href="@{/search(keyword='Textbook')}">Course Textbooks</a></li>
-        <li><a th:href="@{/search(keyword='Tech')}">Laptops &amp; Tech</a></li>
       </ul>
     </div>
 
     <div class="footer-col">
-      <h5>Trust &amp; Legal</h5>
+      <h5>Account</h5>
       <ul>
-        <li><a href="#verification">Email Verification</a></li>
-        <li><a href="#terms">Terms of Service</a></li>
-        <li><a href="#privacy">Privacy Policy</a></li>
+        <li><a th:href="@{/login}">Sign In</a></li>
+        <li><a th:href="@{/register}">Create Account</a></li>
+        <li th:if="${isAuthenticated}"><a th:href="@{/profile}">My Profile &amp; Listings</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <h5>Project</h5>
+      <ul>
+        <li><a href="https://github.com/souravC01/yu-bazaar">View Source on GitHub</a></li>
+        <li>Meet in a public, well-lit location.</li>
+        <li>Verify the item before exchanging payment.</li>
       </ul>
     </div>
   </div>
