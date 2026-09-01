@@ -4,6 +4,7 @@ import com.example.demo.Email.EmailSender;
 import com.example.demo.Email.EmailTemplate;
 import com.example.demo.model.User;
 import com.example.demo.repository.UserRepository;
+import com.example.demo.service.AccountVerificationService;
 import com.example.demo.service.PasswordResetService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -15,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.Locale;
-import java.util.concurrent.ThreadLocalRandom;
 
 @Controller
 public class TemplateController {
@@ -25,17 +25,20 @@ public class TemplateController {
     private final EmailSender emailSender;
     private final PasswordEncoder passwordEncoder;
     private final PasswordResetService passwordResetService;
+    private final AccountVerificationService accountVerificationService;
     private final boolean showLocalCodes;
 
     public TemplateController(UserRepository userRepository,
                               EmailSender emailSender,
                               PasswordEncoder passwordEncoder,
                               PasswordResetService passwordResetService,
+                              AccountVerificationService accountVerificationService,
                               @Value("${app.mail.show-local-codes}") boolean showLocalCodes) {
         this.userRepository = userRepository;
         this.emailSender = emailSender;
         this.passwordEncoder = passwordEncoder;
         this.passwordResetService = passwordResetService;
+        this.accountVerificationService = accountVerificationService;
         this.showLocalCodes = showLocalCodes;
     }
 
@@ -83,7 +86,6 @@ public class TemplateController {
             return registrationError(model, "Email is already registered.");
         }
 
-        String otp = generateOtp();
         User user = new User();
         user.setName(name.trim());
         user.setEmail(normalizedEmail);
@@ -91,19 +93,18 @@ public class TemplateController {
         user.setGender(gender);
         user.setDob(dob);
         user.setPassword(passwordEncoder.encode(password));
-        user.setOtp(otp);
         user.setVerified(false);
         userRepository.save(user);
 
-        boolean otpSent = emailSender.sendOtpEmail(normalizedEmail, otp);
+        AccountVerificationService.IssueResult issueResult = accountVerificationService.issueInitialCode(user);
         EmailTemplate template = EmailTemplate.REGISTRATION_SUCCESS;
         emailSender.sendEmail(normalizedEmail, template.getSubject(), template.getBody(user.getName()));
 
         redirectAttributes.addAttribute("email", normalizedEmail);
         if (showLocalCodes) {
-            redirectAttributes.addFlashAttribute("localOtp", otp);
+            redirectAttributes.addFlashAttribute("localOtp", issueResult.code());
             redirectAttributes.addFlashAttribute("success", "Registration complete. Use the local verification code below.");
-        } else if (otpSent) {
+        } else if (issueResult.delivered()) {
             redirectAttributes.addFlashAttribute("success", "Registration complete. Check your email for the verification code.");
         } else {
             redirectAttributes.addFlashAttribute("error", "Your account was created, but the verification email could not be sent.");
@@ -174,24 +175,48 @@ public class TemplateController {
                             Model model,
                             RedirectAttributes redirectAttributes) {
         String normalizedEmail = normalizeEmail(email);
-        User user = userRepository.findByEmailIgnoreCase(normalizedEmail).orElse(null);
+        AccountVerificationService.VerificationResult result = accountVerificationService.verify(normalizedEmail, otp);
 
-        if (user == null) {
-            model.addAttribute("error", "User not found.");
-            model.addAttribute("email", normalizedEmail);
-            return "verify_otp";
-        }
-        if (user.getOtp() == null || !user.getOtp().equals(otp.trim())) {
-            model.addAttribute("error", "Invalid verification code.");
-            model.addAttribute("email", normalizedEmail);
-            return "verify_otp";
+        if (result == AccountVerificationService.VerificationResult.VERIFIED) {
+            redirectAttributes.addFlashAttribute("success", "Account verified. You can now sign in.");
+            return "redirect:/login";
         }
 
-        user.setVerified(true);
-        user.setOtp(null);
-        userRepository.save(user);
-        redirectAttributes.addFlashAttribute("success", "Account verified. You can now sign in.");
-        return "redirect:/login";
+        String error = switch (result) {
+            case USER_NOT_FOUND -> "User not found.";
+            case INVALID_CODE -> "Invalid verification code.";
+            case EXPIRED_CODE -> "This verification code has expired. Request a new code.";
+            case VERIFIED -> throw new IllegalStateException("Verified result should redirect");
+        };
+        model.addAttribute("error", error);
+        model.addAttribute("email", normalizedEmail);
+        return "verify_otp";
+    }
+
+    @PostMapping("/verify/resend")
+    public String resendVerificationCode(@RequestParam String email,
+                                         RedirectAttributes redirectAttributes) {
+        String normalizedEmail = normalizeEmail(email);
+        AccountVerificationService.ResendResult result = accountVerificationService.resend(normalizedEmail);
+
+        redirectAttributes.addAttribute("email", normalizedEmail);
+        switch (result.status()) {
+            case SENT -> {
+                redirectAttributes.addFlashAttribute("success", "A new verification code has been prepared.");
+                if (showLocalCodes) {
+                    redirectAttributes.addFlashAttribute("localOtp", result.localCode());
+                }
+            }
+            case COOLDOWN -> redirectAttributes.addFlashAttribute(
+                    "error",
+                    "Wait 60 seconds before requesting another code."
+            );
+            case NOT_AVAILABLE -> redirectAttributes.addFlashAttribute(
+                    "success",
+                    "If this account still needs verification, a new code has been prepared."
+            );
+        }
+        return "redirect:/verify";
     }
 
     @GetMapping("/verify")
@@ -203,10 +228,6 @@ public class TemplateController {
     private String registrationError(Model model, String message) {
         model.addAttribute("error", message);
         return "register_page";
-    }
-
-    private String generateOtp() {
-        return String.valueOf(ThreadLocalRandom.current().nextInt(100000, 1000000));
     }
 
     private String normalizeEmail(String email) {

@@ -70,7 +70,11 @@
 
   <!-- Bottom Links -->
   <div class="auth-footer-links">
-    <div>Didn't receive a code? Check your spam folder or <a th:href="@{/register}">try again</a></div>
+    <div>Didn't receive a code? Check your spam folder.</div>
+    <form th:action="@{/verify/resend}" method="post" style="margin-top: 8px;">
+      <input type="hidden" name="email" th:value="${email}">
+      <button type="submit" class="btn btn-outline-dark btn-sm">Resend code</button>
+    </form>
     <div style="margin-top: 8px;"><a th:href="@{/login}">&larr; Back to Sign In</a></div>
   </div>
 </div>
