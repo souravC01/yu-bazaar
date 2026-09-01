@@ -184,23 +184,22 @@
       <div class="modal-body">
         <div class="form-group">
           <label class="form-label" for="itemTitle">Item Title *</label>
-          <input type="text" id="itemTitle" name="title" class="form-input" placeholder="e.g. EECS 2030 Textbook / TI-84 Calculator" required>
+          <input type="text" id="itemTitle" name="title" maxlength="120" class="form-input" placeholder="e.g. EECS 2030 Textbook / TI-84 Calculator" required>
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
           <div class="form-group">
             <label class="form-label" for="itemPrice">Price (CAD) *</label>
-            <input type="number" id="itemPrice" name="price" step="0.01" min="0" class="form-input" placeholder="0.00" required>
+            <input type="number" id="itemPrice" name="price" step="0.01" min="0" max="100000" class="form-input" placeholder="0.00" required>
           </div>
 
           <div class="form-group">
             <label class="form-label" for="itemWear">Condition *</label>
             <select id="itemWear" name="wear" class="form-input" required>
               <option value="">-- Condition --</option>
-              <option value="new">Brand New</option>
-              <option value="used (like new)">Used (Like New)</option>
-              <option value="used">Used (Good)</option>
-              <option value="poor">Fair / Poor</option>
+              <option th:each="condition : ${listingConditions}"
+                      th:value="${condition.value}"
+                      th:text="${condition.label}"></option>
             </select>
           </div>
         </div>
@@ -209,75 +208,15 @@
           <label class="form-label" for="itemLocation">Campus Meetup Location *</label>
           <select id="itemLocation" name="location" class="form-input" required>
             <option value="">-- Select York Campus Location --</option>
-            <option value="Vari Hall">Vari Hall (Central Meetup)</option>
-            <option value="Scott Library">Scott Library</option>
-            <option value="Student Centre">Student Centre</option>
-            <option value="Bergeron Centre for Engineering Excellence">Bergeron Centre (Lassonde)</option>
-            <option value="Steacie Science and Engineering Library">Steacie Library</option>
-            <option value="York Lanes">York Lanes</option>
-            <option value="Accolade Building East">Accolade Building East</option>
-            <option value="Accolade Building West">Accolade Building West</option>
-            <option value="Archives of Ontario">Archives of Ontario</option>
-            <option value="Atkinson">Atkinson</option>
-            <option value="Bennett Centre for Student Services">Bennett Centre for Student Services</option>
-            <option value="Behavioural Sciences Building">Behavioural Sciences Building</option>
-            <option value="Burton Auditorium">Burton Auditorium</option>
-            <option value="Calumet College">Calumet College</option>
-            <option value="Chemistry Building">Chemistry Building</option>
-            <option value="Computer Methods Building">Computer Methods Building</option>
-            <option value="Central Square">Central Square</option>
-            <option value="Central Utilities Building">Central Utilities Building</option>
-            <option value="Centre for Film and Theatre">Centre for Film and Theatre</option>
-            <option value="Curtis Lecture Halls">Curtis Lecture Halls</option>
-            <option value="Dahdaleh Building">Dahdaleh Building</option>
-            <option value="Executive Learning Centre">Executive Learning Centre</option>
-            <option value="Farquharson Life Sciences">Farquharson Life Sciences</option>
-            <option value="Founders College">Founders College</option>
-            <option value="Founders Tennis Court">Founders Tennis Court</option>
-            <option value="Frost Library (Glendon campus)">Frost Library (Glendon campus)</option>
-            <option value="Glendon Hall (Glendon campus)">Glendon Hall (Glendon campus)</option>
-            <option value="Hart House (Osgoode Hall Law School)">Hart House (Osgoode Hall Law School)</option>
-            <option value="Health, Nursing and Environmental Studies Building">Health &amp; Nursing Building</option>
-            <option value="Hilliard Residence (Glendon campus)">Hilliard Residence (Glendon)</option>
-            <option value="Ignat Kaneff Building">Ignat Kaneff Building</option>
-            <option value="Kaneff Tower">Kaneff Tower</option>
-            <option value="Kinsmen Building">Kinsmen Building</option>
-            <option value="Lassonde Building">Lassonde Building</option>
-            <option value="LA&PS @ IBM Markham">LA&amp;PS @ IBM Markham</option>
-            <option value="Life Sciences Building">Life Sciences Building</option>
-            <option value="Lorna R. Marsden Honours Court & Welcome Centre">Lorna R. Marsden Welcome Centre</option>
-            <option value="Lumbers Building">Lumbers Building</option>
-            <option value="McLaughlin College">McLaughlin College</option>
-            <option value="Norman Bethune College">Norman Bethune College</option>
-            <option value="Petrie Science and Engineering Building">Petrie Science &amp; Engineering</option>
-            <option value="Physical Resources Building">Physical Resources Building</option>
-            <option value="Rob and Cheryl McEwen Graduate Study Building">McEwen Graduate Building</option>
-            <option value="Ross Building - North wing">Ross Building - North wing</option>
-            <option value="Ross Building - South wing">Ross Building - South wing</option>
-            <option value="Seneca @ York">Seneca @ York</option>
-            <option value="Seymour Schulich Building">Schulich School of Business</option>
-            <option value="Sheridan College - Trafalgar Campus">Sheridan College</option>
-            <option value="Sherman Health Science Research Centre">Sherman Health Science</option>
-            <option value="Stedman Lecture Halls">Stedman Lecture Halls</option>
-            <option value="Stong College">Stong College</option>
-            <option value="Tait McKenzie Centre">Tait McKenzie Centre</option>
-            <option value="Tait Tennis Courts">Tait Tennis Courts</option>
-            <option value="Technology and Enhanced Learning Building">TEL Building</option>
-            <option value="Tennis Canada">Tennis Canada</option>
-            <option value="The Joan & Martin Goldfarb Centre for Fine Arts">Goldfarb Centre for Fine Arts</option>
-            <option value="Track and Field Centre">Track and Field Centre</option>
-            <option value="Vanier College">Vanier College</option>
-            <option value="West Office Building">West Office Building</option>
-            <option value="William Small Centre">William Small Centre</option>
-            <option value="Winters College">Winters College</option>
-            <option value="York Hall (Glendon campus)">York Hall (Glendon campus)</option>
-            <option value="Off Campus">Off Campus Meetup</option>
+            <option th:each="location : ${listingLocations}"
+                    th:value="${location}"
+                    th:text="${location}"></option>
           </select>
         </div>
 
         <div class="form-group">
           <label class="form-label" for="itemDescription">Description (Optional)</label>
-          <textarea id="itemDescription" name="description" class="form-input form-textarea" placeholder="Detail condition, included accessories, or edition..."></textarea>
+          <textarea id="itemDescription" name="description" maxlength="255" class="form-input form-textarea" placeholder="Detail condition, included accessories, or edition..."></textarea>
         </div>
 
         <div class="form-group">

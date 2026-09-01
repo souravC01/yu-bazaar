@@ -74,7 +74,8 @@ class SecurityWorkflowTests {
 
         mockMvc.perform(get("/home"))
                 .andExpect(status().isOk())
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("Sign In")));
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Sign In")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Off Campus")));
     }
 
     @Test
@@ -232,6 +233,35 @@ class SecurityWorkflowTests {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("image/png"))
                 .andExpect(content().bytes(new byte[]{1, 2, 3}));
+    }
+
+    @Test
+    void newListingAcceptsEveryLocationAdvertisedByTheForm() throws Exception {
+        String sellerEmail = "seller@my.yorku.ca";
+        createUser(sellerEmail, true);
+        MockHttpSession session = listingSession("off-campus-token");
+        MockMultipartFile image = new MockMultipartFile(
+                "image", "off-campus.png", "image/png", new byte[]{1, 2, 3}
+        );
+
+        mockMvc.perform(multipart("/add-item")
+                        .file(image)
+                        .param("title", "Desk Chair")
+                        .param("price", "40.00")
+                        .param("wear", "used")
+                        .param("location", "Off Campus")
+                        .param("description", "Pickup near campus")
+                        .param("submissionToken", "off-campus-token")
+                        .session(session)
+                        .with(user(sellerEmail).roles("USER"))
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/home"));
+
+        assertThat(itemRepository.findAll())
+                .singleElement()
+                .extracting(Item::getLocation)
+                .isEqualTo("Off Campus");
     }
 
     @Test
