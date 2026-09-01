@@ -30,7 +30,9 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrlPattern;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
 
 @SpringBootTest(properties = "app.upload.directory=target/test-uploads")
 @AutoConfigureMockMvc
@@ -74,7 +76,29 @@ class SecurityWorkflowTests {
 
         mockMvc.perform(get("/home"))
                 .andExpect(status().isOk())
-                .andExpect(content().string(org.hamcrest.Matchers.containsString("Sign In")));
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Sign In")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Off Campus")));
+    }
+
+    @Test
+    void publicFooterContainsOnlyRealDestinations() throws Exception {
+        mockMvc.perform(get("/"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString(
+                        "href=\"#terms\""
+                ))))
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString(
+                        "href=\"#privacy\""
+                ))))
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString(
+                        "href=\"#security\""
+                ))))
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString(
+                        "href=\"#vari-hall\""
+                ))))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString(
+                        "https://github.com/souravC01/yu-bazaar"
+                )));
     }
 
     @Test
@@ -82,6 +106,24 @@ class SecurityWorkflowTests {
         mockMvc.perform(get("/profile"))
                 .andExpect(status().is3xxRedirection())
                 .andExpect(redirectedUrlPattern("**/login"));
+    }
+
+    @Test
+    void loginExplainsBothSellerVerificationTiers() throws Exception {
+        mockMvc.perform(get("/login"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString(
+                        "York Verified Student or Public Seller"
+                )))
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString(
+                        "Must be an active @my.yorku.ca or @yorku.ca email"
+                ))))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("Try the read-only demo")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString(DEMO_EMAIL)))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("/js/demo-login.js")))
+                .andExpect(content().string(org.hamcrest.Matchers.not(
+                        org.hamcrest.Matchers.containsString("onclick=\"prefillDemo()\"")
+                )));
     }
 
     @Test
@@ -232,6 +274,71 @@ class SecurityWorkflowTests {
                 .andExpect(status().isOk())
                 .andExpect(content().contentType("image/png"))
                 .andExpect(content().bytes(new byte[]{1, 2, 3}));
+
+        mockMvc.perform(get("/media/" + item.getImagePath()))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("image/png"))
+                .andExpect(content().bytes(new byte[]{1, 2, 3}));
+    }
+
+    @Test
+    void nullListingImagesRenderAnExplicitStaticPlaceholder() throws Exception {
+        Item item = new Item();
+        item.setTitle("Listing Without Photo");
+        item.setPrice(5.0);
+        item.setWear("used");
+        item.setLocation("Scott Library");
+        item.setDescription("Placeholder expected");
+        item.setSellerEmail("seller@gmail.com");
+        item.setImagePath(null);
+        item = itemRepository.save(item);
+
+        mockMvc.perform(get("/home"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString(
+                        "alt=\"YU Bazaar listing placeholder\""
+                )))
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString(
+                        "/media/default-listing.png"
+                ))));
+
+        mockMvc.perform(get("/product/" + item.getId()))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString(
+                        "alt=\"YU Bazaar listing placeholder\""
+                )))
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString(
+                        "/media/default-listing.png"
+                ))));
+    }
+
+    @Test
+    void newListingAcceptsEveryLocationAdvertisedByTheForm() throws Exception {
+        String sellerEmail = "seller@my.yorku.ca";
+        createUser(sellerEmail, true);
+        MockHttpSession session = listingSession("off-campus-token");
+        MockMultipartFile image = new MockMultipartFile(
+                "image", "off-campus.png", "image/png", new byte[]{1, 2, 3}
+        );
+
+        mockMvc.perform(multipart("/add-item")
+                        .file(image)
+                        .param("title", "Desk Chair")
+                        .param("price", "40.00")
+                        .param("wear", "used")
+                        .param("location", "Off Campus")
+                        .param("description", "Pickup near campus")
+                        .param("submissionToken", "off-campus-token")
+                        .session(session)
+                        .with(user(sellerEmail).roles("USER"))
+                        .with(csrf()))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/home"));
+
+        assertThat(itemRepository.findAll())
+                .singleElement()
+                .extracting(Item::getLocation)
+                .isEqualTo("Off Campus");
     }
 
     @Test
@@ -275,6 +382,41 @@ class SecurityWorkflowTests {
                         .with(user(DEMO_EMAIL).roles("USER"))
                         .with(csrf()))
                 .andExpect(status().isForbidden());
+    }
+
+    @Test
+    void inquiryRequiresAMessageWithinTheAdvertisedLimit() throws Exception {
+        String sellerEmail = "seller@my.yorku.ca";
+        String buyerEmail = "buyer@gmail.com";
+        createUser(sellerEmail, true);
+        createUser(buyerEmail, true);
+
+        Item item = new Item();
+        item.setTitle("Desk Lamp");
+        item.setPrice(15.0);
+        item.setWear("used");
+        item.setLocation("York Lanes");
+        item.setDescription("Working condition");
+        item.setSellerEmail(sellerEmail);
+        item = itemRepository.save(item);
+
+        mockMvc.perform(post("/send-inquiry")
+                        .param("itemId", item.getId().toString())
+                        .param("message", "   ")
+                        .with(user(buyerEmail).roles("USER"))
+                        .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(view().name("product_page"))
+                .andExpect(model().attribute("error", "Enter a message for the seller."));
+
+        mockMvc.perform(post("/send-inquiry")
+                        .param("itemId", item.getId().toString())
+                        .param("message", "x".repeat(1001))
+                        .with(user(buyerEmail).roles("USER"))
+                        .with(csrf()))
+                .andExpect(status().isOk())
+                .andExpect(view().name("product_page"))
+                .andExpect(model().attribute("error", "Message must be 1,000 characters or fewer."));
     }
 
     @Test

@@ -2,7 +2,7 @@
 
 [![CI](https://github.com/souravC01/yu-bazaar/actions/workflows/ci.yml/badge.svg)](https://github.com/souravC01/yu-bazaar/actions/workflows/ci.yml)
 
-YU Bazaar is a marketplace application created for York University students to list, discover, and inquire about items available within the campus community.
+YU Bazaar is a public marketplace centered on the York University community. Anyone with a valid email can register as a Public Seller, while York email addresses receive York Verified Student status.
 
 This repository is an independently maintained portfolio edition of a four-person course project. It was created from a sanitized snapshot of the instructor-hosted course repository, which remains unchanged, and evolves the original local application into a publicly deployed cloud application.
 
@@ -31,17 +31,20 @@ The credentials are intentionally public. Demo access is read-only: visitors can
 
 ## Current Status
 
-The portfolio edition is deployed and its primary production workflow has been verified: York email registration, OTP delivery, account verification, sign-in, listing creation, and persistent image upload. Automated tests also cover authentication boundaries, password recovery, listing ownership, media delivery, and owner-only deletion.
+The portfolio edition is deployed as one Spring Boot application. Its primary workflows include public and York registration, expiring email verification, sign-in, listing creation, public listing-photo delivery, seller inquiries, profile listing management, and password recovery.
 
 ## Features
 
-- York University email registration with one-time verification codes
+- Registration with any valid email and York-specific verified status
+- Ten-minute verification codes with a sixty-second resend cooldown
 - BCrypt password hashing and session-backed authentication
 - Expiring, single-use password reset links
-- Marketplace listings with search and live suggestions
-- Private image storage in Cloudflare R2
+- Public marketplace listings, photographs, search, and live suggestions
+- Listing image storage in Cloudflare R2 with application-managed delivery
 - Seller inquiries delivered by email
-- Owner-only listing deletion and media cleanup
+- Owner-only listing deletion, profile-owned listing management, and media cleanup
+- Intentionally public, read-only recruiter demo with protected write operations
+- Static placeholders for seeded listings that do not have uploaded photographs
 - Responsive server-rendered pages built with Thymeleaf
 
 ## Technology
@@ -96,13 +99,13 @@ The default `dev` profile uses an in-memory H2 database and disables external em
 
 Open `http://localhost:8080` after the application starts.
 
-Register with a `yorku.ca` or `my.yorku.ca` address. In local development, the verification code appears on the verification page and password recovery provides a local reset link instead of sending email. Local data is reset whenever the application restarts.
+Register with any valid email. York addresses receive York Verified Student status; other addresses receive Public Seller status. In local development, the verification code appears on the verification page and password recovery provides a local reset link instead of sending email. Local data is reset whenever the application restarts.
 
 ## Production Configuration
 
 Production uses environment variables rather than committed credentials. Copy `.env.example` into your deployment platform's secret manager and provide the public application URL, Neon PostgreSQL settings, mail settings, and Cloudflare R2 credentials there. Flyway baselines the existing Neon schema at version 1 on its first production connection and manages later migrations normally. Do not commit a populated `.env` file.
 
-Create a private R2 bucket and an API token with object read/write access limited to that bucket. Set `R2_ENDPOINT` to the account-level S3 endpoint shown in Cloudflare, and keep `R2_REGION=auto`. Images remain private in the bucket and are delivered to signed-in users through the application's `/media/{key}` endpoint.
+Create a private R2 bucket and an API token with object read/write access limited to that bucket. Set `R2_ENDPOINT` to the account-level S3 endpoint shown in Cloudflare, and keep `R2_REGION=auto`. Objects remain private in the bucket, while valid listing photographs are intentionally delivered publicly through the application's `/media/{key}` endpoint alongside public listings.
 
 The default `local` storage backend writes to `uploads/`. Set `UPLOAD_DIRECTORY` only when a different local path is needed. The production profile defaults to the `s3` backend.
 
@@ -116,7 +119,7 @@ The free Render instance may sleep after inactivity. Neon stores application dat
 
 ### Production Architecture
 
-- Render runs the containerized Spring Boot application.
+- Render runs the single containerized Spring Boot application and its MVC, authentication, listing, inquiry, and notification workflows.
 - Neon provides managed PostgreSQL with Flyway-controlled migrations.
 - Cloudflare R2 stores private listing images through its S3-compatible API.
 - Brevo delivers verification, recovery, listing, and inquiry emails.
@@ -127,7 +130,7 @@ The free Render instance may sleep after inactivity. Neon stores application dat
 .\mvnw.cmd test
 ```
 
-The current suite covers route protection, password hashing, verified login, expiring one-time password resets, replay rejection, authenticated listing ownership, owner-only deletion, and uploaded-image delivery.
+The current suite covers route protection, password hashing, public and York verification tiers, expiring verification codes, resend cooldowns, one-time password resets, replay rejection, inquiry limits, listing ownership, demo write restrictions, profile filtering, owner-only deletion, public uploaded-image delivery, and placeholder rendering.
 
 ## License
 

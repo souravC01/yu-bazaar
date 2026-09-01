@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>YU Bazaar | The Verified York University Student Marketplace</title>
+  <title>YU Bazaar | York Community Marketplace</title>
   
   <!-- Core Design Tokens & Component Styles -->
   <link rel="stylesheet" th:href="@{/css/theme.css}" href="/css/theme.css">
@@ -63,13 +63,14 @@
   <div class="hero-content">
     <div class="hero-badge">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
-      <span>Verified York Student Marketplace</span>
+      <span>York Community Marketplace</span>
     </div>
 
     <h1 class="hero-headline">
       Commerce for Campus.<br>
       Buy &amp; sell with <em>verified trust.</em>
     </h1>
+    <p style="color: var(--shade-20); margin-top: 12px;">Verify any valid email to sell. York email addresses receive York Verified Student status.</p>
 
     <!-- Pill Search Capsule -->
     <div class="hero-search-wrapper">
@@ -111,7 +112,7 @@
       <h2 class="section-title">Campus Listings</h2>
       <span class="listing-count" th:text="${items.size()} + ' active listings' + (${yorkOnly} ? ' (York Verified Only)' : '')">Active Listings</span>
     </div>
-    <div style="display: flex; gap: 10px; align-items: center;">
+    <div class="listing-header-actions">
       <a th:if="${!yorkOnly}" th:href="@{/home(yorkOnly=true)}" class="btn btn-outline-dark btn-sm" style="color: var(--primary-ink); border-color: var(--hairline-light);">✓ Filter: York Verified Only</a>
       <a th:if="${yorkOnly}" th:href="@{/home(yorkOnly=false)}" class="btn btn-primary-pill btn-sm" style="background-color: #064e3b;">✓ Showing York Verified (Reset)</a>
       <button type="button" class="btn btn-primary-pill btn-sm" th:if="${isAuthenticated and !isDemo}" onclick="openListingModal()">+ Post New Item</button>
@@ -133,7 +134,13 @@
     <article class="listing-card" th:each="item : ${items}">
       <!-- Image Stage -->
       <div class="listing-media-wrap">
-        <img th:src="@{/media/{filename}(filename=${item.imagePath})}" src="/images/YUB_Logo.jpg" onerror="this.onerror=null; this.src='/images/YUB_Logo.jpg';" alt="Listing photo" class="listing-img" loading="lazy">
+        <img th:if="${item.imagePath != null}"
+             th:src="@{/media/{filename}(filename=${item.imagePath})}"
+             onerror="this.onerror=null; this.src='/images/YUB_Logo.jpg';"
+             alt="Listing photo" class="listing-img" loading="lazy">
+        <img th:unless="${item.imagePath != null}"
+             th:src="@{/images/YUB_Logo.jpg}"
+             alt="YU Bazaar listing placeholder" class="listing-img" loading="lazy">
         <div class="listing-tags">
           <span class="pill-tag pill-tag-mint" th:if="${item.wear}" th:text="${item.wear}">Condition</span>
         </div>
@@ -184,23 +191,22 @@
       <div class="modal-body">
         <div class="form-group">
           <label class="form-label" for="itemTitle">Item Title *</label>
-          <input type="text" id="itemTitle" name="title" class="form-input" placeholder="e.g. EECS 2030 Textbook / TI-84 Calculator" required>
+          <input type="text" id="itemTitle" name="title" maxlength="120" class="form-input" placeholder="e.g. EECS 2030 Textbook / TI-84 Calculator" required>
         </div>
 
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
           <div class="form-group">
             <label class="form-label" for="itemPrice">Price (CAD) *</label>
-            <input type="number" id="itemPrice" name="price" step="0.01" min="0" class="form-input" placeholder="0.00" required>
+            <input type="number" id="itemPrice" name="price" step="0.01" min="0" max="100000" class="form-input" placeholder="0.00" required>
           </div>
 
           <div class="form-group">
             <label class="form-label" for="itemWear">Condition *</label>
             <select id="itemWear" name="wear" class="form-input" required>
               <option value="">-- Condition --</option>
-              <option value="new">Brand New</option>
-              <option value="used (like new)">Used (Like New)</option>
-              <option value="used">Used (Good)</option>
-              <option value="poor">Fair / Poor</option>
+              <option th:each="condition : ${listingConditions}"
+                      th:value="${condition.value}"
+                      th:text="${condition.label}"></option>
             </select>
           </div>
         </div>
@@ -209,75 +215,15 @@
           <label class="form-label" for="itemLocation">Campus Meetup Location *</label>
           <select id="itemLocation" name="location" class="form-input" required>
             <option value="">-- Select York Campus Location --</option>
-            <option value="Vari Hall">Vari Hall (Central Meetup)</option>
-            <option value="Scott Library">Scott Library</option>
-            <option value="Student Centre">Student Centre</option>
-            <option value="Bergeron Centre for Engineering Excellence">Bergeron Centre (Lassonde)</option>
-            <option value="Steacie Science and Engineering Library">Steacie Library</option>
-            <option value="York Lanes">York Lanes</option>
-            <option value="Accolade Building East">Accolade Building East</option>
-            <option value="Accolade Building West">Accolade Building West</option>
-            <option value="Archives of Ontario">Archives of Ontario</option>
-            <option value="Atkinson">Atkinson</option>
-            <option value="Bennett Centre for Student Services">Bennett Centre for Student Services</option>
-            <option value="Behavioural Sciences Building">Behavioural Sciences Building</option>
-            <option value="Burton Auditorium">Burton Auditorium</option>
-            <option value="Calumet College">Calumet College</option>
-            <option value="Chemistry Building">Chemistry Building</option>
-            <option value="Computer Methods Building">Computer Methods Building</option>
-            <option value="Central Square">Central Square</option>
-            <option value="Central Utilities Building">Central Utilities Building</option>
-            <option value="Centre for Film and Theatre">Centre for Film and Theatre</option>
-            <option value="Curtis Lecture Halls">Curtis Lecture Halls</option>
-            <option value="Dahdaleh Building">Dahdaleh Building</option>
-            <option value="Executive Learning Centre">Executive Learning Centre</option>
-            <option value="Farquharson Life Sciences">Farquharson Life Sciences</option>
-            <option value="Founders College">Founders College</option>
-            <option value="Founders Tennis Court">Founders Tennis Court</option>
-            <option value="Frost Library (Glendon campus)">Frost Library (Glendon campus)</option>
-            <option value="Glendon Hall (Glendon campus)">Glendon Hall (Glendon campus)</option>
-            <option value="Hart House (Osgoode Hall Law School)">Hart House (Osgoode Hall Law School)</option>
-            <option value="Health, Nursing and Environmental Studies Building">Health &amp; Nursing Building</option>
-            <option value="Hilliard Residence (Glendon campus)">Hilliard Residence (Glendon)</option>
-            <option value="Ignat Kaneff Building">Ignat Kaneff Building</option>
-            <option value="Kaneff Tower">Kaneff Tower</option>
-            <option value="Kinsmen Building">Kinsmen Building</option>
-            <option value="Lassonde Building">Lassonde Building</option>
-            <option value="LA&PS @ IBM Markham">LA&amp;PS @ IBM Markham</option>
-            <option value="Life Sciences Building">Life Sciences Building</option>
-            <option value="Lorna R. Marsden Honours Court & Welcome Centre">Lorna R. Marsden Welcome Centre</option>
-            <option value="Lumbers Building">Lumbers Building</option>
-            <option value="McLaughlin College">McLaughlin College</option>
-            <option value="Norman Bethune College">Norman Bethune College</option>
-            <option value="Petrie Science and Engineering Building">Petrie Science &amp; Engineering</option>
-            <option value="Physical Resources Building">Physical Resources Building</option>
-            <option value="Rob and Cheryl McEwen Graduate Study Building">McEwen Graduate Building</option>
-            <option value="Ross Building - North wing">Ross Building - North wing</option>
-            <option value="Ross Building - South wing">Ross Building - South wing</option>
-            <option value="Seneca @ York">Seneca @ York</option>
-            <option value="Seymour Schulich Building">Schulich School of Business</option>
-            <option value="Sheridan College - Trafalgar Campus">Sheridan College</option>
-            <option value="Sherman Health Science Research Centre">Sherman Health Science</option>
-            <option value="Stedman Lecture Halls">Stedman Lecture Halls</option>
-            <option value="Stong College">Stong College</option>
-            <option value="Tait McKenzie Centre">Tait McKenzie Centre</option>
-            <option value="Tait Tennis Courts">Tait Tennis Courts</option>
-            <option value="Technology and Enhanced Learning Building">TEL Building</option>
-            <option value="Tennis Canada">Tennis Canada</option>
-            <option value="The Joan & Martin Goldfarb Centre for Fine Arts">Goldfarb Centre for Fine Arts</option>
-            <option value="Track and Field Centre">Track and Field Centre</option>
-            <option value="Vanier College">Vanier College</option>
-            <option value="West Office Building">West Office Building</option>
-            <option value="William Small Centre">William Small Centre</option>
-            <option value="Winters College">Winters College</option>
-            <option value="York Hall (Glendon campus)">York Hall (Glendon campus)</option>
-            <option value="Off Campus">Off Campus Meetup</option>
+            <option th:each="location : ${listingLocations}"
+                    th:value="${location}"
+                    th:text="${location}"></option>
           </select>
         </div>
 
         <div class="form-group">
           <label class="form-label" for="itemDescription">Description (Optional)</label>
-          <textarea id="itemDescription" name="description" class="form-input form-textarea" placeholder="Detail condition, included accessories, or edition..."></textarea>
+          <textarea id="itemDescription" name="description" maxlength="255" class="form-input form-textarea" placeholder="Detail condition, included accessories, or edition..."></textarea>
         </div>
 
         <div class="form-group">
@@ -300,40 +246,40 @@
   <div class="footer-container">
     <div class="footer-brand">
       <h4>YU Bazaar</h4>
-      <p>The student-to-student marketplace exclusively for verified York University community members. Safe, zero-spam campus commerce.</p>
+      <p>Open to York community members and public sellers. Browse publicly and verify an email when you are ready to sell.</p>
     </div>
 
     <div class="footer-col">
-      <h5>Campus Safety</h5>
+      <h5>Marketplace</h5>
       <ul>
-        <li><a href="#vari-hall">Vari Hall Designated Safe Zone</a></li>
-        <li><a href="#safety">Campus Meetup Tips</a></li>
-        <li><a href="#security">York Security Services</a></li>
-      </ul>
-    </div>
-
-    <div class="footer-col">
-      <h5>Student Hub</h5>
-      <ul>
-        <li><a th:href="@{/profile}">My Listings</a></li>
+        <li><a th:href="@{/}">All Listings</a></li>
+        <li><a th:href="@{/home(yorkOnly=true)}">York Verified Listings</a></li>
         <li><a th:href="@{/search(keyword='Textbook')}">Course Textbooks</a></li>
-        <li><a th:href="@{/search(keyword='Tech')}">Laptops &amp; Tech</a></li>
       </ul>
     </div>
 
     <div class="footer-col">
-      <h5>Trust &amp; Legal</h5>
+      <h5>Account</h5>
       <ul>
-        <li><a href="#verification">York Student Email Verification</a></li>
-        <li><a href="#terms">Terms of Service</a></li>
-        <li><a href="#privacy">Privacy Policy</a></li>
+        <li><a th:href="@{/login}">Sign In</a></li>
+        <li><a th:href="@{/register}">Create Account</a></li>
+        <li th:if="${isAuthenticated}"><a th:href="@{/profile}">My Profile &amp; Listings</a></li>
+      </ul>
+    </div>
+
+    <div class="footer-col">
+      <h5>Project</h5>
+      <ul>
+        <li><a href="https://github.com/souravC01/yu-bazaar">View Source on GitHub</a></li>
+        <li>Meet in a public, well-lit location.</li>
+        <li>Verify the item before exchanging payment.</li>
       </ul>
     </div>
   </div>
 
   <div class="footer-bottom">
-    <div>&copy; 2026 YU Bazaar. Built for York University Students.</div>
-    <div>Strictly restricted to current @my.yorku.ca account holders.</div>
+    <div>&copy; 2026 YU Bazaar. Built for the York community.</div>
+    <div>York emails receive York Verified Student status.</div>
   </div>
 </footer>
 

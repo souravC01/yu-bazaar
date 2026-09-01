@@ -46,7 +46,13 @@
     <div class="gallery-column">
       <!-- Media Display Stage -->
       <div class="product-gallery-stage">
-        <img th:src="@{/media/{imageName}(imageName=${item.imagePath})}" src="/images/YUB_Logo.jpg" onerror="this.onerror=null; this.src='/images/YUB_Logo.jpg';" th:alt="${item.title}" class="product-main-image">
+        <img th:if="${item.imagePath != null}"
+             th:src="@{/media/{filename}(filename=${item.imagePath})}"
+             onerror="this.onerror=null; this.src='/images/YUB_Logo.jpg';"
+             th:alt="${item.title}" class="product-main-image">
+        <img th:unless="${item.imagePath != null}"
+             th:src="@{/images/YUB_Logo.jpg}"
+             alt="YU Bazaar listing placeholder" class="product-main-image">
       </div>
 
       <!-- Description & Specs Card -->
@@ -100,10 +106,10 @@
           <div class="seller-avatar" th:text="${item.isSellerYorkVerified()} ? 'YU' : 'PS'">YU</div>
           <div class="seller-info">
             <div class="seller-name">
-              <span th:text="${item.isSellerYorkVerified()} ? 'York University Student' : 'Public Seller'">York University Student</span>
+              <span th:text="${item.isSellerYorkVerified()} ? 'York Verified Student' : 'Public Seller'">York Verified Student</span>
               <svg th:if="${item.isSellerYorkVerified()}" width="14" height="14" viewBox="0 0 24 24" fill="#16a34a"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
             </div>
-            <span class="seller-subtext" th:text="${item.isSellerYorkVerified()} ? 'Verified @my.yorku.ca student' : 'Verified Public Member (Email OTP)'">Verified @my.yorku.ca student</span>
+            <span class="seller-subtext" th:text="${item.isSellerYorkVerified()} ? 'York email verified' : 'Email verified'">York email verified</span>
           </div>
         </div>
 
@@ -121,7 +127,8 @@
             
             <div class="form-group">
               <label class="form-label" for="inquiryMessage">Message to Seller *</label>
-              <textarea id="inquiryMessage" name="message" class="form-input form-textarea" placeholder="Introduce yourself and propose a campus meetup time..." required></textarea>
+              <textarea id="inquiryMessage" name="message" maxlength="1000" class="form-input form-textarea" placeholder="Introduce yourself and propose a campus meetup time..." required></textarea>
+              <span class="form-hint">1,000 characters maximum.</span>
             </div>
 
             <button type="submit" id="sendInquiryBtn" class="btn btn-primary-pill btn-full btn-lg">

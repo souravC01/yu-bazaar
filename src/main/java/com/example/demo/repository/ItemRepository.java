@@ -11,4 +11,5 @@ public interface ItemRepository extends JpaRepository<Item, Long> {
     @Query("SELECT i FROM Item i WHERE LOWER(i.title) LIKE LOWER(CONCAT('%', :keyword, '%'))")
     List<Item> searchItems(@Param("keyword") String keyword);
 
+    List<Item> findBySellerEmailIgnoreCaseOrderByIdDesc(String sellerEmail);
 }

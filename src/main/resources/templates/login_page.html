@@ -17,13 +17,13 @@
   <div class="auth-brand-header">
     <img th:src="@{/images/YUB_Logo.jpg}" src="/images/YUB_Logo.jpg" alt="YU Bazaar Logo" class="auth-brand-logo">
     <h1 class="auth-brand-title">YU Bazaar</h1>
-    <p class="auth-brand-tagline">The Verified York University Student Marketplace</p>
+    <p class="auth-brand-tagline">Open to York community members and public sellers.</p>
   </div>
 
   <!-- Main Auth Card -->
   <div class="auth-card">
     <h2 class="auth-card-title">Welcome Back</h2>
-    <p class="auth-card-subtitle">Sign in with your York student credentials</p>
+    <p class="auth-card-subtitle">Sign in as a York Verified Student or Public Seller.</p>
 
     <!-- Success & Error Alerts -->
     <div class="alert-box alert-danger" th:if="${error}" th:text="${error}"></div>
@@ -32,9 +32,9 @@
     <!-- Login Form -->
     <form th:action="@{/login}" method="post">
       <div class="form-group">
-        <label class="form-label" for="email">York University Email</label>
-        <input type="email" id="email" name="email" class="form-input" placeholder="student@my.yorku.ca" required>
-        <span class="form-hint">Must be an active @my.yorku.ca or @yorku.ca email</span>
+        <label class="form-label" for="email">Email Address</label>
+        <input type="email" id="email" name="email" class="form-input" placeholder="you@example.com" required>
+        <span class="form-hint">Use the verified email associated with your account.</span>
       </div>
 
       <div class="form-group">
@@ -48,9 +48,10 @@
     </form>
 
     <!-- Demo Mode Quick Prefill -->
-    <div class="demo-quick-login" th:if="${isDemo != null and isDemo}">
+    <div class="demo-quick-login">
       <p class="demo-quick-login-text">👋 Viewing as a guest or recruiter? Use demo access:</p>
-      <button type="button" class="btn btn-outline-light btn-sm" onclick="prefillDemo()">Auto-Fill Demo Credentials</button>
+      <button type="button" id="demoLoginButton" class="btn btn-outline-light btn-sm">Try the read-only demo</button>
+      <span class="form-hint">demo@yubazaar.app</span>
     </div>
   </div>
 
@@ -62,16 +63,7 @@
   </div>
 </div>
 
-<script>
-  function prefillDemo() {
-    const emailField = document.getElementById("email");
-    const passField = document.getElementById("password");
-    if (emailField && passField) {
-      emailField.value = "demo@yubazaar.app";
-      passField.value = "Demo@YuBazaar2026";
-    }
-  }
-</script>
+<script th:src="@{/js/demo-login.js}" src="/js/demo-login.js" defer></script>
 
 </body>
 </html>

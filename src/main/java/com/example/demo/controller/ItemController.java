@@ -7,6 +7,7 @@ import com.example.demo.model.User;
 import com.example.demo.repository.ItemRepository;
 import com.example.demo.repository.UserRepository;
 import com.example.demo.service.DemoAccountPolicy;
+import com.example.demo.service.ListingPolicy;
 import com.example.demo.storage.ImageStorageService;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.http.HttpStatus;
@@ -23,46 +24,31 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
-import java.util.Arrays;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
 
 @Controller
 public class ItemController {
     private static final String LISTING_SUBMISSION_TOKEN = "listingSubmissionToken";
-    private static final Set<String> VALID_WEAR_OPTIONS = Set.of("new", "used (like new)", "used", "poor");
-    private static final List<String> VALID_LOCATIONS = Arrays.asList(
-            "Norman Bethune College", "Bennett Centre for Student Services", "Bergeron Centre for Engineering Excellence",
-            "Behavioural Sciences Building", "Burton Auditorium", "Chemistry Building", "Calumet College",
-            "The Joan & Martin Goldfarb Centre for Fine Arts", "Centre for Film and Theatre", "Curtis Lecture Halls",
-            "Computer Methods Building", "Central Square", "Central Utilities Building", "Dahdaleh Building",
-            "Executive Learning Centre", "Founders College", "Frost Library (Glendon campus)",
-            "Hilliard Residence (Glendon campus)", "Health, Nursing and Environmental Studies Building",
-            "Ignat Kaneff Building", "Keele Campus", "Kinsmen Building", "Life Sciences Building",
-            "Lorna R. Marsden Honour Court & Welcome Centre", "Lumbers Building", "Mc Laughlin College",
-            "Osgoode Hall Law School", "Petrie Science and Engineering Building", "Physical Resources Building",
-            "Ross Building", "Robbins Library", "Steacie Science and Engineering Building",
-            "Stedman Community Centre", "Student Centre", "Seymour Schulich Building", "The Pond Road Residence",
-            "Tait McKenzie Centre", "Vanier College", "Vari Hall", "Victor Phillip Dahdaleh Building",
-            "Winters College", "York Lanes", "Glendon Campus", "Scott Library"
-    );
     private final ItemRepository itemRepository;
     private final UserRepository userRepository;
     private final EmailSender emailSender;
     private final ImageStorageService imageStorageService;
     private final DemoAccountPolicy demoAccountPolicy;
+    private final ListingPolicy listingPolicy;
 
     public ItemController(ItemRepository itemRepository,
                           UserRepository userRepository,
                           EmailSender emailSender,
                           ImageStorageService imageStorageService,
-                          DemoAccountPolicy demoAccountPolicy) {
+                          DemoAccountPolicy demoAccountPolicy,
+                          ListingPolicy listingPolicy) {
         this.itemRepository = itemRepository;
         this.userRepository = userRepository;
         this.emailSender = emailSender;
         this.imageStorageService = imageStorageService;
         this.demoAccountPolicy = demoAccountPolicy;
+        this.listingPolicy = listingPolicy;
     }
 
     @GetMapping({"/", "/home"})
@@ -101,14 +87,9 @@ public class ItemController {
             redirectAttributes.addFlashAttribute("error", "This listing was already submitted. Refresh the page to try again.");
             return "redirect:/home";
         }
-        if (title.isBlank() || price < 0) {
-            return homeWithError(model, session, "Enter a title and a non-negative price.", authentication);
-        }
-        if (!VALID_WEAR_OPTIONS.contains(wear)) {
-            return homeWithError(model, session, "Invalid wear condition selected.", authentication);
-        }
-        if (!VALID_LOCATIONS.contains(location)) {
-            return homeWithError(model, session, "Invalid location selected.", authentication);
+        ListingPolicy.ValidationResult validation = listingPolicy.validate(title, price, wear, location, description);
+        if (!validation.valid()) {
+            return homeWithError(model, session, validation.message(), authentication);
         }
 
         String storedImageKey = null;
@@ -145,6 +126,20 @@ public class ItemController {
                               Model model) {
         demoAccountPolicy.requireWritable(authentication);
         Item item = getItem(itemId);
+        populateUserContext(model, authentication);
+        model.addAttribute("item", item);
+        model.addAttribute("isOwner", ownsItem(item, authentication));
+
+        String trimmedMessage = message.trim();
+        if (trimmedMessage.isEmpty()) {
+            model.addAttribute("error", "Enter a message for the seller.");
+            return "product_page";
+        }
+        if (trimmedMessage.length() > 1_000) {
+            model.addAttribute("error", "Message must be 1,000 characters or fewer.");
+            return "product_page";
+        }
+
         User buyer = userRepository.findByEmailIgnoreCase(authentication.getName())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED));
 
@@ -153,15 +148,13 @@ public class ItemController {
                 "Hi,\n\nYou have received a new inquiry for your listing titled '%s'.\n\n" +
                         "Inquiry Details:\nBuyer Name: %s\nBuyer Email: %s\nMessage: %s\n\n" +
                         "You can contact the buyer directly to follow up.\n\nRegards,\nYU Bazaar Team",
-                item.getTitle(), buyer.getName(), buyer.getEmail(), message.trim()
+                item.getTitle(), buyer.getName(), buyer.getEmail(), trimmedMessage
         );
 
         boolean delivered = emailSender.sendEmail(item.getSellerEmail(), subject, emailBody);
         model.addAttribute("success", delivered
                 ? "Inquiry sent successfully to the seller."
                 : "Email delivery is disabled in this local environment.");
-        model.addAttribute("item", item);
-        model.addAttribute("isOwner", ownsItem(item, authentication));
         return "product_page";
     }
 
@@ -195,6 +188,7 @@ public class ItemController {
         model.addAttribute("items", searchResults);
         model.addAttribute("searchKeyword", keyword.trim());
         model.addAttribute("yorkOnly", yorkOnly);
+        addListingOptions(model);
         issueListingSubmissionToken(model, session);
         return "home_page";
     }
@@ -258,6 +252,7 @@ public class ItemController {
         }
         model.addAttribute("items", items);
         model.addAttribute("yorkOnly", yorkOnly);
+        addListingOptions(model);
         if (!model.containsAttribute("isAuthenticated")) {
             model.addAttribute("isAuthenticated", false);
         }
@@ -265,6 +260,11 @@ public class ItemController {
             model.addAttribute("isDemo", false);
         }
         issueListingSubmissionToken(model, session);
+    }
+
+    private void addListingOptions(Model model) {
+        model.addAttribute("listingConditions", listingPolicy.conditions());
+        model.addAttribute("listingLocations", listingPolicy.locations());
     }
 
     private void issueListingSubmissionToken(Model model, HttpSession session) {

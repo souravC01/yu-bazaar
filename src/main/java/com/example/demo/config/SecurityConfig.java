@@ -39,7 +39,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers(
                                 "/", "/home", "/search", "/search-suggestions", "/product/**", "/media/**",
-                                "/login", "/register", "/verify", "/forgot-password", "/forgot_password",
+                                "/login", "/register", "/verify", "/verify/resend", "/forgot-password", "/forgot_password",
                                 "/reset-password",
                                 "/css/**", "/images/**", "/actuator/health", "/health", "/error"
                         ).permitAll()
