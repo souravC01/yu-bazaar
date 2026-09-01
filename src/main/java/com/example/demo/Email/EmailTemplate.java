@@ -5,12 +5,12 @@ public enum EmailTemplate {
     REGISTRATION_SUCCESS(
             "Welcome to Yu Bazaar – Registration Successful!",
             "Hi %s,\n\n" +
-                    "Welcome to Yu Bazaar, the ultimate marketplace for York University students! 🎉\n\n" +
-                    "Your registration was successful, and your account is now active.\n\n" +
+                    "Welcome to YU Bazaar, a marketplace for York community members and public sellers.\n\n" +
+                    "Your registration was received. Please verify your email before signing in.\n\n" +
                     "At Yu Bazaar, you can:\n" +
                     "- List items you want to sell or trade.\n" +
-                    "- Browse and buy from a variety of items posted by fellow YorkU students.\n" +
-                    "- Connect with your campus community in a safe and convenient way.\n\n" +
+                    "- Browse items from York Verified Students and Public Sellers.\n" +
+                    "- Arrange convenient exchanges with other marketplace members.\n\n" +
                     "We’re excited to have you join our growing marketplace!\n" +
                     "If you have any questions, feel free to reach out to us at yubazaarsupport@gmail.com.\n\n" +
                     "Let’s make buying and selling on campus easy, fun, and secure.\n\n" +

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Verify York Email | YU Bazaar</title>
+  <title>Verify Email | YU Bazaar</title>
 
   <!-- Design System Tokens & Components -->
   <link rel="stylesheet" th:href="@{/css/theme.css}" href="/css/theme.css">
@@ -17,7 +17,7 @@
   <div class="auth-brand-header">
     <img th:src="@{/images/YUB_Logo.jpg}" src="/images/YUB_Logo.jpg" alt="YU Bazaar Logo" class="auth-brand-logo">
     <h1 class="auth-brand-title">YU Bazaar</h1>
-    <p class="auth-brand-tagline">The Verified York University Student Marketplace</p>
+    <p class="auth-brand-tagline">Open to York community members and public sellers.</p>
   </div>
 
   <!-- Verification Card -->
@@ -39,7 +39,7 @@
     </div>
 
     <h2 class="auth-card-title">Check Your Inbox</h2>
-    <p class="auth-card-subtitle">We sent a 6-digit verification code to your York email address</p>
+    <p class="auth-card-subtitle">We sent a 6-digit verification code to your email address</p>
 
     <!-- Flash Messages -->
     <div class="alert-box alert-success" th:if="${success}" th:text="${success}"></div>
@@ -51,8 +51,8 @@
     <!-- OTP Form -->
     <form th:action="@{/verify}" method="post">
       <div class="form-group">
-        <label class="form-label" for="email">York Email</label>
-        <input type="email" id="email" name="email" th:value="${email}" class="form-input" placeholder="student@my.yorku.ca" required>
+        <label class="form-label" for="email">Email Address</label>
+        <input type="email" id="email" name="email" th:value="${email}" class="form-input" placeholder="you@example.com" required>
         <div class="form-error" th:if="${emailError}" th:text="${emailError}"></div>
       </div>
 

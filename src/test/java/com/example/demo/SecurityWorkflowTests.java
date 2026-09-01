@@ -88,6 +88,18 @@ class SecurityWorkflowTests {
     }
 
     @Test
+    void loginExplainsBothSellerVerificationTiers() throws Exception {
+        mockMvc.perform(get("/login"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString(
+                        "York Verified Student or Public Seller"
+                )))
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString(
+                        "Must be an active @my.yorku.ca or @yorku.ca email"
+                ))));
+    }
+
+    @Test
     void healthCheckIsPubliclyAvailable() throws Exception {
         mockMvc.perform(get("/actuator/health"))
                 .andExpect(status().isOk())

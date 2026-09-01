@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Student Profile | YU Bazaar</title>
+  <title>Seller Profile | YU Bazaar</title>
 
   <!-- Design System Tokens & Components -->
   <link rel="stylesheet" th:href="@{/css/theme.css}" href="/css/theme.css">
@@ -88,7 +88,7 @@
             York Verified Student
           </span>
           <span class="badge-public" th:unless="${user.isYorkVerified()}">
-            Public Member
+            Public Seller
           </span>
         </div>
         <p style="font-size: 14px; color: var(--shade-50);" th:text="${user.email}">student@my.yorku.ca</p>
@@ -103,7 +103,7 @@
     </div>
 
     <div class="profile-data-row">
-      <span class="profile-data-label">York University Email</span>
+      <span class="profile-data-label">Email Address</span>
       <span class="profile-data-val" th:text="${user.email}">student@my.yorku.ca</span>
     </div>
 
@@ -118,8 +118,8 @@
     </div>
 
     <div class="profile-data-row">
-      <span class="profile-data-label">Campus Verification Status</span>
-      <span class="pill-tag pill-tag-mint">Verified Active</span>
+      <span class="profile-data-label">Seller Verification Status</span>
+      <span class="pill-tag pill-tag-mint" th:text="${user.isYorkVerified()} ? 'York Verified Student' : 'Public Seller'">Verified Seller</span>
     </div>
 
     <!-- Actions -->

@@ -53,7 +53,7 @@ public class EmailSender {
         String body = "Dear User,\n\n"
                 + "Thank you for registering at YU Bazaar. Please use the following OTP to verify your account:\n\n"
                 + otp + "\n\n"
-                + "This OTP is valid for 10 minutes.\n\n"
+                + "This verification code expires in 10 minutes.\n\n"
                 + "Regards,\n"
                 + "YU Bazaar Team";
 
