@@ -15,7 +15,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.format.DateTimeParseException;
 import java.util.Locale;
+import java.util.Optional;
 
 @Controller
 public class TemplateController {
@@ -51,41 +55,66 @@ public class TemplateController {
     }
 
     @GetMapping("/register")
-    public String showRegisterPage() {
+    public String showRegisterPage(Model model) {
+        addRegistrationConstraints(model);
         return "register_page";
     }
 
     @PostMapping("/register")
     public String handleRegister(@RequestParam String name,
                                  @RequestParam String email,
-                                 @RequestParam int age,
                                  @RequestParam String gender,
-                                 @RequestParam String dob,
+                                 @RequestParam(required = false) String dob,
                                  @RequestParam String password,
                                  @RequestParam String confirmPassword,
                                  Model model,
                                  RedirectAttributes redirectAttributes) {
         String normalizedEmail = normalizeEmail(email);
 
+        if (!normalizedEmail.matches(EMAIL_PATTERN)) {
+            return registrationError(model, "Use a valid email address.");
+        }
+        Optional<User> existingUser = userRepository.findByEmailIgnoreCase(normalizedEmail);
+        if (existingUser.isPresent()) {
+            if (!existingUser.get().isVerified()) {
+                redirectAttributes.addAttribute("email", normalizedEmail);
+                redirectAttributes.addFlashAttribute(
+                        "success",
+                        "Your account is waiting for email verification. Enter your code or request a new one."
+                );
+                return "redirect:/verify";
+            }
+            redirectAttributes.addFlashAttribute("error", "Account already verified. Sign in to continue.");
+            return "redirect:/login";
+        }
         if (!password.equals(confirmPassword)) {
             return registrationError(model, "Passwords do not match.");
         }
         if (name == null || name.isBlank()) {
             return registrationError(model, "Name is required.");
         }
-        if (!normalizedEmail.matches(EMAIL_PATTERN)) {
-            return registrationError(model, "Use a valid email address.");
+        if (dob == null || dob.isBlank()) {
+            return registrationError(model, "Date of birth is required.");
         }
-        if (age <= 0) {
-            return registrationError(model, "Age must be a positive number.");
+        LocalDate birthDate;
+        try {
+            birthDate = LocalDate.parse(dob);
+        } catch (DateTimeParseException exception) {
+            return registrationError(model, "Enter a valid date of birth.");
+        }
+        if (birthDate.isAfter(LocalDate.now())) {
+            return registrationError(model, "Date of birth cannot be in the future.");
+        }
+        int age = Period.between(birthDate, LocalDate.now()).getYears();
+        if (age > 120) {
+            return registrationError(model, "Enter a realistic date of birth.");
+        }
+        if (age < 16) {
+            return registrationError(model, "You must be at least 16 years old to register.");
         }
         if (password.length() < 8) {
             return registrationError(model, "Password must be at least 8 characters.");
         }
-        if (userRepository.existsByEmailIgnoreCase(normalizedEmail)) {
-            return registrationError(model, "Email is already registered.");
-        }
-
         User user = new User();
         user.setName(name.trim());
         user.setEmail(normalizedEmail);
@@ -227,7 +256,12 @@ public class TemplateController {
 
     private String registrationError(Model model, String message) {
         model.addAttribute("error", message);
+        addRegistrationConstraints(model);
         return "register_page";
+    }
+
+    private void addRegistrationConstraints(Model model) {
+        model.addAttribute("latestEligibleDob", LocalDate.now().minusYears(16));
     }
 
     private String normalizeEmail(String email) {

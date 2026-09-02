@@ -26,7 +26,7 @@
     <div class="step-progress-bar">
       <div class="step-item active">
         <div class="step-circle">1</div>
-        <span class="step-label">Student Info</span>
+        <span class="step-label">Account Info</span>
       </div>
       <div class="step-item">
         <div class="step-circle">2</div>
@@ -60,28 +60,21 @@
         <div class="form-error" id="emailError"></div>
       </div>
 
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-        <div class="form-group">
-          <label class="form-label" for="age">Age *</label>
-          <input type="number" id="age" name="age" min="1" max="120" class="form-input" placeholder="e.g. 20" required>
-          <div class="form-error" id="ageError"></div>
-        </div>
-
-        <div class="form-group">
-          <label class="form-label" for="gender">Gender *</label>
-          <select id="gender" name="gender" class="form-input" required>
-            <option value="" disabled selected>Select</option>
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
-            <option value="Other">Other / Prefer not to say</option>
-          </select>
-          <div class="form-error" id="genderError"></div>
-        </div>
+      <div class="form-group">
+        <label class="form-label" for="gender">Gender *</label>
+        <select id="gender" name="gender" class="form-input" required>
+          <option value="" disabled selected>Select</option>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+          <option value="Other">Other / Prefer not to say</option>
+        </select>
+        <div class="form-error" id="genderError"></div>
       </div>
 
       <div class="form-group">
         <label class="form-label" for="dob">Date of Birth *</label>
-        <input type="date" id="dob" name="dob" class="form-input" required>
+        <input type="date" id="dob" name="dob" class="form-input" th:max="${latestEligibleDob}" required>
+        <span class="form-hint">You must be 16 or older to create an account.</span>
         <div class="form-error" id="dobError"></div>
       </div>
 
@@ -117,6 +110,7 @@
   <!-- Bottom Links -->
   <div class="auth-footer-links">
     <div>Already have an account? <a th:href="@{/login}">Sign in here</a></div>
+    <div><a th:href="@{/verify}">Already registered? Verify your email</a></div>
     <div style="margin-top: 8px;"><a th:href="@{/}" style="color: var(--shade-50); font-weight: 400;">&larr; Return to Browse Marketplace</a></div>
   </div>
 </div>
@@ -128,7 +122,6 @@
 
     const name = document.getElementById('name').value.trim();
     const email = document.getElementById('email').value.trim();
-    const age = document.getElementById('age').value.trim();
     const gender = document.getElementById('gender').value;
     const dob = document.getElementById('dob').value;
     const password = document.getElementById('password').value;
@@ -145,11 +138,6 @@
       isValid = false;
     }
 
-    if (!age || isNaN(age) || age <= 0) {
-      document.getElementById('ageError').textContent = 'Please enter a valid age.';
-      isValid = false;
-    }
-
     if (!gender) {
       document.getElementById('genderError').textContent = 'Please select gender.';
       isValid = false;
@@ -158,6 +146,12 @@
     if (!dob) {
       document.getElementById('dobError').textContent = 'Date of Birth is required.';
       isValid = false;
+    } else {
+      const latestEligibleDob = document.getElementById('dob').max;
+      if (latestEligibleDob && dob > latestEligibleDob) {
+        document.getElementById('dobError').textContent = 'You must be at least 16 years old to register.';
+        isValid = false;
+      }
     }
 
     if (!password || password.length < 8) {

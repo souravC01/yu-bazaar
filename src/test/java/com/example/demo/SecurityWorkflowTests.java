@@ -18,6 +18,7 @@ import org.springframework.mock.web.MockHttpSession;
 import org.springframework.util.FileSystemUtils;
 
 import java.nio.file.Path;
+import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
@@ -30,6 +31,7 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrlPattern;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.flash;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.view;
@@ -127,6 +129,26 @@ class SecurityWorkflowTests {
     }
 
     @Test
+    void accountPagesExposeVerificationRecoveryAndDobOnlyRegistration() throws Exception {
+        mockMvc.perform(get("/register"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("name=\"dob\"")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("You must be 16 or older")))
+                .andExpect(content().string(org.hamcrest.Matchers.not(
+                        org.hamcrest.Matchers.containsString("name=\"age\"")
+                )))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("href=\"/verify\"")));
+
+        mockMvc.perform(get("/login"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("href=\"/verify\"")));
+
+        mockMvc.perform(get("/forgot-password"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString("href=\"/verify\"")));
+    }
+
+    @Test
     void healthCheckIsPubliclyAvailable() throws Exception {
         mockMvc.perform(get("/actuator/health"))
                 .andExpect(status().isOk())
@@ -135,13 +157,14 @@ class SecurityWorkflowTests {
 
     @Test
     void registrationNormalizesEmailAndHashesPassword() throws Exception {
+        String sixteenthBirthday = LocalDate.now().minusYears(16).toString();
+
         mockMvc.perform(post("/register")
                         .with(csrf())
                         .param("name", "Test Student")
                         .param("email", " STUDENT@MY.YORKU.CA ")
-                        .param("age", "22")
                         .param("gender", "Prefer not to say")
-                        .param("dob", "2004-01-01")
+                        .param("dob", sixteenthBirthday)
                         .param("password", "secure-pass")
                         .param("confirmPassword", "secure-pass"))
                 .andExpect(status().is3xxRedirection())
@@ -151,6 +174,133 @@ class SecurityWorkflowTests {
         assertThat(registeredUser.getPassword()).isNotEqualTo("secure-pass");
         assertThat(passwordEncoder.matches("secure-pass", registeredUser.getPassword())).isTrue();
         assertThat(registeredUser.isVerified()).isFalse();
+        assertThat(registeredUser.getAge()).isEqualTo(16);
+    }
+
+    @Test
+    void registrationRejectsUsersYoungerThanSixteen() throws Exception {
+        String tooYoungDob = LocalDate.now().minusYears(16).plusDays(1).toString();
+
+        mockMvc.perform(post("/register")
+                        .with(csrf())
+                        .param("name", "Young User")
+                        .param("email", "young.user@example.com")
+                        .param("gender", "Prefer not to say")
+                        .param("dob", tooYoungDob)
+                        .param("password", "secure-pass")
+                        .param("confirmPassword", "secure-pass"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("register_page"))
+                .andExpect(model().attribute("error", "You must be at least 16 years old to register."));
+
+        assertThat(userRepository.existsByEmailIgnoreCase("young.user@example.com")).isFalse();
+    }
+
+    @Test
+    void registrationReturnsFormErrorForMalformedDateOfBirth() throws Exception {
+        mockMvc.perform(post("/register")
+                        .with(csrf())
+                        .param("name", "Invalid Date")
+                        .param("email", "invalid.date@example.com")
+                        .param("gender", "Prefer not to say")
+                        .param("dob", "not-a-date")
+                        .param("password", "secure-pass")
+                        .param("confirmPassword", "secure-pass"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("register_page"))
+                .andExpect(model().attribute("error", "Enter a valid date of birth."));
+
+        assertThat(userRepository.existsByEmailIgnoreCase("invalid.date@example.com")).isFalse();
+    }
+
+    @Test
+    void registrationReturnsFormErrorWhenDateOfBirthIsMissing() throws Exception {
+        mockMvc.perform(post("/register")
+                        .with(csrf())
+                        .param("name", "Missing Date")
+                        .param("email", "missing.date@example.com")
+                        .param("gender", "Prefer not to say")
+                        .param("password", "secure-pass")
+                        .param("confirmPassword", "secure-pass"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("register_page"))
+                .andExpect(model().attribute("error", "Date of birth is required."));
+
+        assertThat(userRepository.existsByEmailIgnoreCase("missing.date@example.com")).isFalse();
+    }
+
+    @Test
+    void registrationRejectsFutureDateOfBirth() throws Exception {
+        mockMvc.perform(post("/register")
+                        .with(csrf())
+                        .param("name", "Future Date")
+                        .param("email", "future.date@example.com")
+                        .param("gender", "Prefer not to say")
+                        .param("dob", LocalDate.now().plusDays(1).toString())
+                        .param("password", "secure-pass")
+                        .param("confirmPassword", "secure-pass"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("register_page"))
+                .andExpect(model().attribute("error", "Date of birth cannot be in the future."));
+
+        assertThat(userRepository.existsByEmailIgnoreCase("future.date@example.com")).isFalse();
+    }
+
+    @Test
+    void registrationRejectsImplausibleDateOfBirth() throws Exception {
+        mockMvc.perform(post("/register")
+                        .with(csrf())
+                        .param("name", "Old Date")
+                        .param("email", "old.date@example.com")
+                        .param("gender", "Prefer not to say")
+                        .param("dob", LocalDate.now().minusYears(121).toString())
+                        .param("password", "secure-pass")
+                        .param("confirmPassword", "secure-pass"))
+                .andExpect(status().isOk())
+                .andExpect(view().name("register_page"))
+                .andExpect(model().attribute("error", "Enter a realistic date of birth."));
+
+        assertThat(userRepository.existsByEmailIgnoreCase("old.date@example.com")).isFalse();
+    }
+
+    @Test
+    void duplicateUnverifiedRegistrationContinuesEmailVerification() throws Exception {
+        createUser("waiting@example.com", false);
+
+        mockMvc.perform(post("/register")
+                        .with(csrf())
+                        .param("name", "Waiting User")
+                        .param("email", " WAITING@EXAMPLE.COM ")
+                        .param("gender", "Prefer not to say")
+                        .param("password", "secure-pass")
+                        .param("confirmPassword", "different-pass"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/verify?email=waiting%40example.com"))
+                .andExpect(flash().attribute(
+                        "success",
+                        "Your account is waiting for email verification. Enter your code or request a new one."
+                ));
+
+        assertThat(userRepository.count()).isEqualTo(1);
+    }
+
+    @Test
+    void duplicateVerifiedRegistrationDirectsUserToSignIn() throws Exception {
+        createUser("member@example.com", true);
+
+        mockMvc.perform(post("/register")
+                        .with(csrf())
+                        .param("name", "Existing Member")
+                        .param("email", "member@example.com")
+                        .param("gender", "Prefer not to say")
+                        .param("dob", "2000-01-01")
+                        .param("password", "secure-pass")
+                        .param("confirmPassword", "secure-pass"))
+                .andExpect(status().is3xxRedirection())
+                .andExpect(redirectedUrl("/login"))
+                .andExpect(flash().attribute("error", "Account already verified. Sign in to continue."));
+
+        assertThat(userRepository.count()).isEqualTo(1);
     }
 
     @Test

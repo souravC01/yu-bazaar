@@ -26,7 +26,7 @@
     <div class="step-progress-bar">
       <div class="step-item completed">
         <div class="step-circle">&#10003;</div>
-        <span class="step-label">Student Info</span>
+        <span class="step-label">Account Info</span>
       </div>
       <div class="step-item active">
         <div class="step-circle">2</div>
@@ -38,8 +38,8 @@
       </div>
     </div>
 
-    <h2 class="auth-card-title">Check Your Inbox</h2>
-    <p class="auth-card-subtitle">We sent a 6-digit verification code to your email address</p>
+    <h2 class="auth-card-title">Verify Your Email</h2>
+    <p class="auth-card-subtitle">Enter your email and 6-digit code, or request a new code if you left registration early.</p>
 
     <!-- Flash Messages -->
     <div class="alert-box alert-success" th:if="${success}" th:text="${success}"></div>
@@ -65,16 +65,19 @@
       <div style="margin-top: 24px;">
         <button type="submit" class="btn btn-primary-pill btn-full btn-lg">Verify &amp; Activate Account</button>
       </div>
+      <div style="margin-top: 8px;">
+        <button type="submit"
+                th:formaction="@{/verify/resend}"
+                formmethod="post"
+                formnovalidate
+                class="btn btn-outline-dark btn-full btn-sm">Resend code</button>
+      </div>
     </form>
   </div>
 
   <!-- Bottom Links -->
   <div class="auth-footer-links">
     <div>Didn't receive a code? Check your spam folder.</div>
-    <form th:action="@{/verify/resend}" method="post" style="margin-top: 8px;">
-      <input type="hidden" name="email" th:value="${email}">
-      <button type="submit" class="btn btn-outline-dark btn-sm">Resend code</button>
-    </form>
     <div style="margin-top: 8px;"><a th:href="@{/login}">&larr; Back to Sign In</a></div>
   </div>
 </div>
