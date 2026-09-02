@@ -15,7 +15,9 @@ import java.time.Instant;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.flash;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.model;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.redirectedUrl;
@@ -128,6 +130,18 @@ class AccountVerificationWorkflowTests {
                         .param("otp", "222222"))
                 .andExpect(status().isOk())
                 .andExpect(model().attribute("error", "Invalid verification code."));
+    }
+
+    @Test
+    void verificationPageResendsUsingTheEmailTheUserEntered() throws Exception {
+        mockMvc.perform(get("/verify"))
+                .andExpect(status().isOk())
+                .andExpect(content().string(org.hamcrest.Matchers.containsString(
+                        "formaction=\"/verify/resend\""
+                )))
+                .andExpect(content().string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString(
+                        "type=\"hidden\" name=\"email\""
+                ))));
     }
 
     private User createUnverifiedUser(String email, String otp) {
