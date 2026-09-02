@@ -35,9 +35,13 @@ These credentials are intentionally public. The demo can browse, search, view pr
 
 ## Production Screens
 
-### Marketplace listings
+### Landing page
 
-![YU Bazaar marketplace showing live Public Seller and York Verified listings](docs/screenshots/marketplace-live.jpg)
+![YU Bazaar authenticated landing page for a York Verified seller](docs/screenshots/Landing_page.jpg)
+
+### Live marketplace listings
+
+![YU Bazaar marketplace showing four live Public Seller and York Verified listings](docs/screenshots/Live_Listings.jpg)
 
 ### Product details
 
