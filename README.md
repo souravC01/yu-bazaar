@@ -1,7 +1,7 @@
 # YU Bazaar
 
 [![CI](https://github.com/souravC01/yu-bazaar/actions/workflows/ci.yml/badge.svg)](https://github.com/souravC01/yu-bazaar/actions/workflows/ci.yml)
-[![Live Application](https://img.shields.io/badge/live-yu--bazaar.onrender.com-46e3b7)](https://yu-bazaar.onrender.com)
+[![Live Application](https://img.shields.io/badge/live-yu--bazaar.vercel.app-46e3b7)](https://yu-bazaar.vercel.app)
 [![Java 17](https://img.shields.io/badge/Java-17-007396)](https://openjdk.org/projects/jdk/17/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3-6DB33F)](https://spring.io/projects/spring-boot)
 
@@ -9,15 +9,14 @@ YU Bazaar is a production-deployed marketplace built around the York University 
 
 The project demonstrates a complete marketplace workflow rather than a static front-end: identity verification, authentication, public listings and photographs, seller inquiries, ownership controls, password recovery, cloud storage, database migrations, automated tests, and continuous deployment.
 
-**Live application:** [yu-bazaar.onrender.com](https://yu-bazaar.onrender.com)
+**Live application:** [yu-bazaar.vercel.app](https://yu-bazaar.vercel.app/)
 
-> The free Render instance may take about a minute to wake after a period of inactivity.
 
 ## Explore the MVP
 
 The fastest reviewer path is:
 
-1. Open the [live marketplace](https://yu-bazaar.onrender.com) and browse the four portfolio listings.
+1. Open the [live marketplace](https://yu-bazaar.vercel.app/) and browse the four portfolio listings.
 2. Open a product to inspect its photograph, seller tier, listing details, and inquiry path.
 3. Select **Sign In**, then choose **Try the read-only demo**.
 4. Visit the demo profile and protected seller flows without changing production data.
