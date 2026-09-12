@@ -1,4 +1,4 @@
-if self.path.startswith("/actuator/health"):import os
+import os
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
 TARGET = "https://yu-bazaar.vercel.app"
@@ -7,7 +7,7 @@ TARGET = "https://yu-bazaar.vercel.app"
 class RedirectHandler(BaseHTTPRequestHandler):
 
     def do_GET(self):
-	if self.path.split("?", 1)[0] == "/actuator/health":
+        if self.path.split("?", 1)[0] == "/actuator/health":
             self.send_response(200)
             self.send_header("Content-Type", "text/plain")
             self.end_headers()
