@@ -1,22 +1,37 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "rewrites": [
+  "routes": [
     {
-      "source": "/",
-      "destination": "https://yu-bazaar-772739041868.us-east4.run.app/"
+      "src": "/",
+      "dest": "https://yu-bazaar-772739041868.us-east4.run.app/",
+      "headers": {
+        "x-vercel-enable-rewrite-caching": "0"
+      },
+      "transforms": [
+        {
+          "type": "request.headers",
+          "op": "set",
+          "target": {
+            "key": "Forwarded"
+          },
+          "args": "proto=https;host=$host"
+        }
+      ]
     },
     {
-      "source": "/:path*",
-      "destination": "https://yu-bazaar-772739041868.us-east4.run.app/:path*"
-    }
-  ],
-  "headers": [
-    {
-      "source": "/:path*",
-      "headers": [
+      "src": "/(.*)",
+      "dest": "https://yu-bazaar-772739041868.us-east4.run.app/$1",
+      "headers": {
+        "x-vercel-enable-rewrite-caching": "0"
+      },
+      "transforms": [
         {
-          "key": "x-vercel-enable-rewrite-caching",
-          "value": "0"
+          "type": "request.headers",
+          "op": "set",
+          "target": {
+            "key": "Forwarded"
+          },
+          "args": "proto=https;host=$host"
         }
       ]
     }
