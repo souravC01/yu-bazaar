@@ -2,6 +2,10 @@
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "rewrites": [
     {
+      "source": "/",
+      "destination": "https://yu-bazaar-772739041868.us-east4.run.app/"
+    },
+    {
       "source": "/:path*",
       "destination": "https://yu-bazaar-772739041868.us-east4.run.app/:path*"
     }
