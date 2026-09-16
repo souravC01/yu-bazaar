@@ -25,3 +25,83 @@ jobs:
 
       - name: Run tests
         run: ./mvnw --batch-mode test
+
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: test
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      id-token: write
+
+    env:
+      PROJECT_ID: roleimpact
+      REGION: us-east4
+      SERVICE: yu-bazaar
+      AR_REPO: yu-bazaar
+      IMAGE_NAME: yu-bazaar
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v6
+
+      - name: Authenticate to Google Cloud
+        uses: google-github-actions/auth@v3
+        with:
+          project_id: roleimpact
+          workload_identity_provider: projects/772739041868/locations/global/workloadIdentityPools/github-pool/providers/yubazaar-provider
+          service_account: yubazaar-github-deployer@roleimpact.iam.gserviceaccount.com
+
+      - name: Set up Google Cloud SDK
+        uses: google-github-actions/setup-gcloud@v3
+        with:
+          project_id: roleimpact
+
+      - name: Configure Artifact Registry authentication
+        run: |
+          gcloud auth configure-docker "${REGION}-docker.pkg.dev" --quiet
+
+      - name: Build image
+        run: |
+          IMAGE="${REGION}-docker.pkg.dev/${PROJECT_ID}/${AR_REPO}/${IMAGE_NAME}:${GITHUB_SHA}"
+          docker build \
+            --tag "$IMAGE" \
+            .
+          echo "IMAGE=$IMAGE" >> "$GITHUB_ENV"
+
+      - name: Push image
+        run: |
+          docker push "$IMAGE"
+
+      - name: Deploy to Cloud Run
+        run: |
+          gcloud run services update "$SERVICE" \
+            --project="$PROJECT_ID" \
+            --region="$REGION" \
+            --image="$IMAGE" \
+            --quiet
+
+      - name: Verify deployment
+        run: |
+          SERVICE_URL="$(gcloud run services describe "$SERVICE" \
+            --project="$PROJECT_ID" \
+            --region="$REGION" \
+            --format='value(status.url)')"
+
+          echo "Checking ${SERVICE_URL}/health"
+
+          for attempt in 1 2 3 4 5; do
+            if curl --fail --silent --show-error \
+              "${SERVICE_URL}/health"; then
+              echo
+              echo "Yu Bazaar health check passed."
+              exit 0
+            fi
+
+            echo "Health check attempt ${attempt} failed. Retrying..."
+            sleep 5
+          done
+
+          echo "Yu Bazaar health check failed."
+          exit 1
