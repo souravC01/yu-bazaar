@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.web.servlet.MockMvc;
@@ -121,11 +122,28 @@ class SecurityWorkflowTests {
                         "Must be an active @my.yorku.ca or @yorku.ca email"
                 ))))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("Try the read-only demo")))
-                .andExpect(content().string(org.hamcrest.Matchers.containsString(DEMO_EMAIL)))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString(
+                        "Use the read-only guest view to explore the marketplace."
+                )))
+                .andExpect(content().string(org.hamcrest.Matchers.not(
+                        org.hamcrest.Matchers.containsString("guest or recruiter")
+                )))
+                .andExpect(content().string(org.hamcrest.Matchers.not(
+                        org.hamcrest.Matchers.containsString(DEMO_EMAIL)
+                )))
                 .andExpect(content().string(org.hamcrest.Matchers.containsString("/js/demo-login.js")))
                 .andExpect(content().string(org.hamcrest.Matchers.not(
                         org.hamcrest.Matchers.containsString("onclick=\"prefillDemo()\"")
                 )));
+    }
+
+    @Test
+    void demoLoginPrefillScriptIsPubliclyAccessible() throws Exception {
+        mockMvc.perform(get("/js/demo-login.js"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.valueOf("application/javascript")))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString(DEMO_EMAIL)))
+                .andExpect(content().string(org.hamcrest.Matchers.containsString(DEMO_PASSWORD)));
     }
 
     @Test

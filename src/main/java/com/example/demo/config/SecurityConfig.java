@@ -41,7 +41,7 @@ public class SecurityConfig {
                                 "/", "/home", "/search", "/search-suggestions", "/product/**", "/media/**",
                                 "/login", "/register", "/verify", "/verify/resend", "/forgot-password", "/forgot_password",
                                 "/reset-password",
-                                "/css/**", "/images/**", "/actuator/health", "/health", "/error"
+                                "/css/**", "/images/**", "/js/**", "/actuator/health", "/health", "/error"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
