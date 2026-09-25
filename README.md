@@ -1,15 +1,18 @@
 # YU Bazaar
 
+[![Case Study](https://img.shields.io/badge/Portfolio_Case_Study-2563EB?style=for-the-badge&logo=readme&logoColor=white)](https://souravchandhok.dev/projects/yu-bazaar/)
 [![CI](https://github.com/souravC01/yu-bazaar/actions/workflows/ci.yml/badge.svg)](https://github.com/souravC01/yu-bazaar/actions/workflows/ci.yml)
 [![Live Application](https://img.shields.io/badge/live-yu--bazaar.vercel.app-46e3b7)](https://yu-bazaar.vercel.app)
 [![Java 17](https://img.shields.io/badge/Java-17-007396)](https://openjdk.org/projects/jdk/17/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.3-6DB33F)](https://spring.io/projects/spring-boot)
 
+
 YU Bazaar is a production-deployed marketplace built around the York University community. Anyone with a valid email can browse, register, and sell as a **Public Seller**; accounts verified with a York email receive **York Verified Student** status.
 
 The project demonstrates a complete marketplace workflow rather than a static front-end: identity verification, authentication, public listings and photographs, seller inquiries, ownership controls, password recovery, cloud storage, database migrations, automated tests, and continuous deployment.
 
-**Live application:** [yu-bazaar.vercel.app](https://yu-bazaar.vercel.app/)
+**Live application:** [yu-bazaar.vercel.app](https://yu-bazaar.vercel.app/)  
+**Portfolio case study:** [souravchandhok.dev/projects/yu-bazaar](https://souravchandhok.dev/projects/yu-bazaar/)
 
 
 ## Explore the MVP
